@@ -1,16 +1,17 @@
 "use client";
 import React, { useState } from "react";
 import { Code2, Component, Zap, Server, Menu, X } from "lucide-react";
+import Link from "next/link";
 
 const navLinks = [
-  { name: "JavaScript", icon: Code2 },
-  { name: "React", icon: Component },
-  { name: "Next.js", icon: Zap },
-  { name: "Node.js", icon: Server },
+  { name: "JavaScript", href: "/javascript", icon: Code2 },
+  { name: "React", href: "/react", icon: Component },
+  { name: "Next.js", href: "/nextjs", icon: Zap },
+  { name: "Node.js", href: "/nodejs", icon: Server },
 ];
 
 const Navbar = () => {
-  const [activeLink, setActiveLink] = useState("Javascript");
+  const [activeLink, setActiveLink] = useState("JavaScript");
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -24,26 +25,27 @@ const Navbar = () => {
               <span className="relative inline-flex h-2 w-2 rounded-full bg-cyan-400" />
             </span>
             <h1 className="text-lg font-semibold tracking-tight text-[#E4E9F2] sm:text-xl">
-              Learning
-              <span className="bg-linear-to-r from-cyan-300 via-violet-400 to-cyan-300 bg-clip-text text-transparent animate-gradient">
-                Hub
+              Java
+              <span className="bg-linear-to-r from-yellow-300 via-white to-cyan-300 bg-clip-text text-transparent animate-gradient">
+                Script
               </span>
             </h1>
           </div>
 
           <ul className="hidden items-center gap-1 md:flex">
-            {navLinks.map(({ name, icon: Icon }) => {
+            {navLinks.map(({ name, href, icon: Icon }) => {
               const isActive = activeLink === name;
               return (
                 <li key={name}>
-                  <a
-                    href="#"
+                  <Link
+                    href={href}
                     onClick={(e) => {
-                      e.preventDefault();
                       setActiveLink(name);
                     }}
-                    className={`group bg-white relative flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors duration-200 ${
-                      isActive ? "text-white" : "text-black hover:text-grey"
+                    className={`group relative flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors duration-200 ${
+                      isActive
+                        ? "text-yellow-400"
+                        : "text-cyan-400 hover:text-white hover:scale-110 transition-transform duration-200"
                     }`}
                   >
                     {isActive && (
@@ -57,19 +59,19 @@ const Navbar = () => {
                       }`}
                     />
                     {name}
-                  </a>
+                  </Link>
                 </li>
               );
             })}
           </ul>
 
           <div className="flex items-center gap-3">
-            <a
+            <Link
               href="#"
               className="hidden items-center rounded-full border border-white/10 px-4 py-2 text-sm font-medium text-[#E4E9F2] transition-all duration-300 hover:border-cyan-400/50 hover:shadow-[0_0_20px_-4px_rgba(79,209,255,0.55)] sm:inline-flex"
             >
               About
-            </a>
+            </Link>
             <button
               onClick={() => setMobileOpen((v) => !v)}
               aria-label="Toggle menu"
@@ -88,14 +90,13 @@ const Navbar = () => {
       {mobileOpen && (
         <div className="border-t border-white/6 bg-[#060A12]/95 px-4 pb-4 pt-2 backdrop-blur-xl md:hidden">
           <ul className="flex flex-col gap-1">
-            {navLinks.map(({ name, icon: Icon }) => {
+            {navLinks.map(({ name, href, icon: Icon }) => {
               const isActive = activeLink === name;
               return (
                 <li key={name}>
-                  <a
-                    href="#"
+                  <Link
+                    href={href}
                     onClick={(e) => {
-                      e.preventDefault();
                       setActiveLink(name);
                       setMobileOpen(false);
                     }}
@@ -109,17 +110,17 @@ const Navbar = () => {
                       }`}
                     />
                     {name}
-                  </a>
+                  </Link>
                 </li>
               );
             })}
             <li>
-              <a
+              <Link
                 href="#"
                 className="mt-1 flex items-center rounded-lg border border-white/10 px-3 py-2.5 text-sm font-medium text-[#E4E9F2]"
               >
                 About
-              </a>
+              </Link>
             </li>
           </ul>
         </div>
