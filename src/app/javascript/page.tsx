@@ -1,7 +1,5 @@
-import React from "react";
+import { redirect } from "next/navigation";
 
-const page = () => {
-  return <div className="text-white ">Javascript</div>;
-};
-
-export default page;
+export default function JsConceptsIndex() {
+  redirect("/js-concepts/01-var-let-const");
+}

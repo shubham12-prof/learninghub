@@ -1,7 +1,7 @@
 import React from "react";
 
 const page = () => {
-  return <div>asdsadasd</div>;
+  return <div>NEXTJS</div>;
 };
 
 export default page;

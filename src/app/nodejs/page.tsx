@@ -1,7 +1,7 @@
 import React from "react";
 
 const page = () => {
-  return <div>asdasdasd</div>;
+  return <div>NODEJS</div>;
 };
 
 export default page;

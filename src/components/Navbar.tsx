@@ -8,6 +8,7 @@ const navLinks = [
   { name: "React", href: "/react", icon: Component },
   { name: "Next.js", href: "/nextjs", icon: Zap },
   { name: "Node.js", href: "/nodejs", icon: Server },
+  { name: "Top30JS", href: "/top30js", icon: Server },
 ];
 
 const Navbar = () => {
