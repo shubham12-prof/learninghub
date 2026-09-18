@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import CodeRenderer from "@/components/CodeRenderer";
 import Sidebar from "@/components/Sidebar";
+import SidebarToggle from "@/components/SidebarToggle";
 
 import { getAllCategories, getAllTopics, getTopicContent } from "@/lib/content";
 
@@ -39,12 +40,23 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Sidebar */}
       <Sidebar topics={topics} activeSlug={slug} category={category} />
+      <SidebarToggle />
 
-      {/* Main Content */}
-      <main className="ml-64 px-6 py-8">
-        <div className="mx-auto max-w-5xl">
+      <main
+        className="
+    min-h-[calc(100vh-4rem)]
+    w-full
+    min-w-0
+    px-3
+    py-6
+    sm:px-6
+    sm:py-8
+    md:ml-64
+    md:w-[calc(100%-16rem)]
+  "
+      >
+        <div className="mx-auto w-full max-w-5xl min-w-0">
           {topic.type === "markdown" ? (
             <MarkdownRenderer content={topic.content} />
           ) : (
