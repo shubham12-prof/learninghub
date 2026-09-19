@@ -35,7 +35,7 @@ const navLinks = [
 ];
 
 const Navbar = () => {
-  const [activeLink, setActiveLink] = useState("JavaScript");
+  const [activeLink, setActiveLink] = useState("/");
 
   const { navbarOpen, setNavbarOpen } = useLayout();
 

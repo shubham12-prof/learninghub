@@ -1,7 +1,5 @@
-import React from "react";
+import { redirect } from "next/navigation";
 
-const page = () => {
-  return <div>NODEJS</div>;
-};
-
-export default page;
+export default function NodeConceptsIndex() {
+  redirect("/nodejs/00-INDEX");
+}
