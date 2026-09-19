@@ -1,7 +1,5 @@
-import React from "react";
+import { redirect } from "next/navigation";
 
-const page = () => {
-  return <div>REACT</div>;
-};
-
-export default page;
+export default function ReactConceptsIndex() {
+  redirect("/react/00-INDEX");
+}
