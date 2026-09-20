@@ -48,31 +48,29 @@ export default function Sidebar({
       ========================== */}
       <aside
         className={`
-          fixed
-          left-0
-          top-16
-          z-40
+    fixed
+    left-0
+    top-16
+    z-40
 
-          flex
-          h-[calc(100vh-4rem)]
-          w-64
-          flex-col
+    flex
+    h-[calc(100vh-4rem)]
+    w-64
+    flex-col
 
-          border-r
-          border-white/10
-          bg-black
+    border-r
+    border-white/10
+    bg-black
 
-          p-4
-          sm:p-5
+    p-4
+    sm:p-5
 
-          transition-transform
-          duration-300
-          ease-in-out
+    transition-transform
+    duration-300
+    ease-in-out
 
-          ${
-            sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-          }
-        `}
+    ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+  `}
       >
         {/* =========================
             MOBILE SIDEBAR HEADER

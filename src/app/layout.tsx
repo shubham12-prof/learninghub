@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import AppLayout from "@/components/AppLayout";
+import Footer from "@/components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,12 +27,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-screen bg-slate-950 text-slate-100">
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className="m-0 w-full bg-[#000103] text-white">
+        {/* Navbar + Page */}
         <AppLayout>{children}</AppLayout>
+
+        {/* FULL WIDTH FOOTER */}
+        <div className="w-screen">
+          <Footer />
+        </div>
       </body>
     </html>
   );
