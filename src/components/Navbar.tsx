@@ -260,7 +260,7 @@ const Navbar = () => {
           <div className="flex shrink-0 items-center gap-3">
             {/* ABOUT */}
             <Link
-              href="#"
+              href="/about"
               className="
                 hidden
                 items-center
@@ -369,7 +369,7 @@ const Navbar = () => {
 
               <li>
                 <Link
-                  href="#"
+                  href="/about"
                   onClick={() => setNavbarOpen(false)}
                   className="
                     mt-1

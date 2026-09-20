@@ -87,6 +87,7 @@ export default function Sidebar({
               flex
               h-8
               w-8
+              z-20
               items-center
               justify-center
               rounded-lg
