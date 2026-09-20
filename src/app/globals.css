@@ -7,7 +7,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #000000;
     --foreground: #ededed;
   }
 }
@@ -23,7 +23,7 @@ body {
   }
 
   50% {
-    background-position: 100% 50%;
+    background-position: 100% 150%;
   }
 
   100% {
@@ -35,6 +35,7 @@ body {
   background-size: 200% 200%;
   animation: gradient-move 6s ease infinite;
 }
+
 .hide-scrollbar {
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -42,4 +43,30 @@ body {
 
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+html {
+  overflow-y: scroll;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #060a12;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.45);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(34, 211, 238, 0.7);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.45) #060a12;
 }

@@ -101,7 +101,7 @@ const Navbar = () => {
         <div
           className="
             flex
-            min-h-[64px]
+            min-h-16
             items-center
             justify-between
             gap-4

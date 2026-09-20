@@ -8,7 +8,7 @@ const Footer = () => {
           <div className="flex items-center gap-2 text-sm text-slate-400">
             <Sparkles size={14} className="text-cyan-400" />
 
-            <span className="font-semibold text-white">DevHub</span>
+            <span className="font-semibold text-white">learninghub</span>
           </div>
 
           <p className="text-center text-xs text-slate-500 sm:text-sm">

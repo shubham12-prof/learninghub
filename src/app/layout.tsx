@@ -29,10 +29,8 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="m-0 w-full bg-[#000103] text-white">
-        {/* Navbar + Page */}
         <AppLayout>{children}</AppLayout>
 
-        {/* FULL WIDTH FOOTER */}
         <div className="w-screen">
           <Footer />
         </div>

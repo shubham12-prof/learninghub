@@ -27,7 +27,7 @@ const learningPaths = [
   },
   {
     title: "React",
-    ext: ".jsx",
+    ext: ".jsx, .tsx, .js, .ts",
     description:
       "Understand React from components and hooks to advanced patterns and performance.",
     href: "/react",
@@ -38,7 +38,7 @@ const learningPaths = [
   },
   {
     title: "Next.js",
-    ext: ".tsx",
+    ext: ".js, .jsx, .ts, .tsx",
     description:
       "Learn modern full-stack development with Next.js, routing, rendering, APIs, and more.",
     href: "/nextjs",
@@ -49,7 +49,7 @@ const learningPaths = [
   },
   {
     title: "Node.js",
-    ext: ".mjs",
+    ext: ".js, .cjs, .mjs, .node",
     description:
       "Understand Node.js architecture, core modules, APIs, and backend development.",
     href: "/nodejs",
@@ -82,9 +82,7 @@ const features = [
 export default function HomePage() {
   return (
     <main className="min-h-screen w-full overflow-x-hidden bg-[#0A0D12] text-slate-200 font-features-['ss01']">
-      {/* ============ HERO ============ */}
       <section className="relative">
-        {/* subtle grid, restrained */}
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.035]"
           style={{
@@ -99,17 +97,15 @@ export default function HomePage() {
 
         <div className="relative mx-auto flex min-h-[calc(100vh-56px)] max-w-6xl flex-col items-center justify-center px-4 py-14 sm:px-6 sm:py-20">
           <div className="w-full max-w-4xl">
-            {/* Editor tab bar — grounds the hero in the actual subject */}
             <div className="mx-auto mb-8 flex max-w-md items-center gap-2 rounded-t-lg border border-b-0 border-white/10 bg-white/3 px-3 py-2 sm:mb-10">
               <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]/70" />
               <span className="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]/70" />
               <span className="h-2.5 w-2.5 rounded-full bg-[#28C840]/70" />
               <span className="ml-2 truncate font-mono text-[11px] text-slate-500">
-                learn.tsx — devhub
+                learn.tsx — learninghub
               </span>
             </div>
 
-            {/* Main heading */}
             <h1 className="text-center font-bold leading-[1.05] tracking-tight text-white text-[clamp(2.5rem,6vw+1rem,6.5rem)]">
               Learn. <span className="text-[#F0A84E]">Build.</span>
               <br />
@@ -132,14 +128,12 @@ export default function HomePage() {
               </span>
             </h1>
 
-            {/* Description */}
             <p className="mx-auto mt-7 max-w-xl text-center text-sm leading-7 text-slate-400 sm:mt-8 sm:text-base sm:leading-8 lg:text-lg">
               Everything you need to grow as a developer — JavaScript, React,
               Next.js, and Node.js — through structured concepts, real code, and
               interview-focused practice, all in one place.
             </p>
 
-            {/* Buttons */}
             <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:mt-10 sm:flex-row sm:gap-4">
               <Link
                 href="/javascript"
@@ -162,11 +156,10 @@ export default function HomePage() {
               </Link>
             </div>
 
-            {/* Stats */}
             <div className="mt-14 grid grid-cols-3 gap-3 border-t border-white/10 pt-7 text-center sm:mt-16 sm:gap-8 sm:pt-8">
               {[
-                { value: "4+", label: "Learning paths" },
-                { value: "100+", label: "Concepts" },
+                { value: "17+", label: "Learning paths" },
+                { value: "300+", label: "Concepts" },
                 { value: "500+", label: "Code examples" },
               ].map((stat) => (
                 <div key={stat.label}>
@@ -183,7 +176,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ============ FEATURES ============ */}
       <section className="border-t border-white/6 bg-[#0C1017]">
         <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
           <div className="grid gap-px overflow-hidden rounded-xl border border-white/6 bg-white/6 sm:grid-cols-3">
@@ -215,7 +207,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ============ LEARNING PATHS ============ */}
       <section className="relative border-t border-white/6">
         <div className="relative mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
           <div className="mb-10 text-center sm:mb-14">
@@ -298,7 +289,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ============ CTA SECTION ============ */}
       <section className="relative border-t border-white/6 overflow-hidden">
         <div className="pointer-events-none absolute left-1/2 top-1/2 h-72 w-130 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#F0A84E]/6 blur-[130px]" />
 
