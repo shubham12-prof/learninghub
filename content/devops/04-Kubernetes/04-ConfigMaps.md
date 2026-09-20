@@ -1,0 +1,222 @@
+# 04. ConfigMaps
+
+## What is a ConfigMap?
+
+A ConfigMap stores non-sensitive configuration data (environment variables, config files, command-line arguments) as key-value pairs, separate from your application's container image — letting you change configuration without rebuilding or redeploying the image itself, and keeping the same image usable across different environments.
+
+```
+Without ConfigMaps: configuration baked directly into the image, or hardcoded in the Deployment YAML
+                      -> changing config requires a new image build, or duplicated YAML per environment
+
+With ConfigMaps:      configuration lives SEPARATELY, referenced by Pods
+                       -> same image works across dev/staging/production, just with different ConfigMaps
+```
+
+## Creating a ConfigMap
+
+### Declaratively (YAML)
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  NODE_ENV: "production"
+  LOG_LEVEL: "info"
+  API_TIMEOUT: "30000"
+  config.json: |
+    {
+      "featureFlags": {
+        "darkMode": true
+      }
+    }
+```
+
+```bash
+kubectl apply -f configmap.yaml
+```
+
+### Imperatively (CLI)
+
+```bash
+kubectl create configmap app-config --from-literal=NODE_ENV=production --from-literal=LOG_LEVEL=info
+
+kubectl create configmap app-config --from-file=config.json      # from a file
+kubectl create configmap app-config --from-file=configs/            # from an entire directory of files
+kubectl create configmap app-config --from-env-file=.env               # from an env-style file
+```
+
+```bash
+kubectl get configmaps
+kubectl describe configmap app-config
+kubectl get configmap app-config -o yaml
+```
+
+## Consuming a ConfigMap — As Environment Variables
+
+### Individual Keys
+
+```yaml
+spec:
+  containers:
+    - name: my-app
+      env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: NODE_ENV
+```
+
+### All Keys at Once
+
+```yaml
+spec:
+  containers:
+    - name: my-app
+      envFrom:
+        - configMapRef:
+            name: app-config
+```
+
+Every key-value pair in the ConfigMap becomes an environment variable inside the container automatically — convenient, though slightly less explicit than referencing individual keys.
+
+## Consuming a ConfigMap — As Mounted Files (Volumes)
+
+For configuration that's more naturally a file (a JSON/YAML config file, an nginx config, etc.) rather than individual environment variables.
+
+```yaml
+spec:
+  containers:
+    - name: my-app
+      volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
+  volumes:
+    - name: config-volume
+      configMap:
+        name: app-config
+```
+
+Each key in the ConfigMap's `data` becomes a **file** inside the mounted directory, with the key as the filename and the value as the file's content.
+
+```
+/app/config/NODE_ENV        <- file containing "production"
+/app/config/LOG_LEVEL         <- file containing "info"
+/app/config/config.json         <- file containing the JSON content
+```
+
+### Mounting Only Specific Keys
+
+```yaml
+volumes:
+  - name: config-volume
+    configMap:
+      name: app-config
+      items:
+        - key: config.json
+          path: config.json # only this specific key gets mounted, not the entire ConfigMap
+```
+
+## Updating a ConfigMap — Does the Running Pod See the Change?
+
+```
+Environment variables sourced from a ConfigMap: do NOT auto-update in a running Pod
+                                                   -> requires a Pod restart/recreation to pick up changes
+
+Volume-mounted ConfigMap files:                     DO eventually auto-update within the running Pod
+                                                     (Kubernetes periodically syncs mounted ConfigMap volumes,
+                                                      typically within about a minute — but this depends on
+                                                      the application code actually re-reading the file,
+                                                      which most apps don't do automatically either)
+```
+
+**Practical guidance:** for genuinely dynamic config, either build application logic to watch/reload the mounted config file, or trigger a proper rolling restart (e.g., via a deployment annotation change, or a dedicated tool like Reloader) rather than relying on the raw update propagation alone.
+
+```bash
+kubectl edit configmap app-config   # update a ConfigMap directly
+kubectl rollout restart deployment/my-app   # force Pods to restart and pick up the new values as env vars
+```
+
+## Triggering a Rollout on ConfigMap Change (Common Pattern)
+
+Since a plain ConfigMap update doesn't automatically trigger a Deployment rollout, a common trick uses a checksum annotation that changes whenever the ConfigMap's content changes, forcing Kubernetes to see the Pod template as "changed" and trigger a rollout.
+
+```yaml
+spec:
+  template:
+    metadata:
+      annotations:
+        checksum/config: "{{ sha256sum-of-the-configmap-content }}" # (often generated by a templating tool like Helm)
+```
+
+Third-party tools like **Reloader** automate this entire pattern, watching ConfigMaps/Secrets and automatically triggering a rolling restart of dependent Deployments when they change.
+
+## ConfigMaps for Entire Configuration Files
+
+A very common pattern: storing a complete configuration file (nginx.conf, an application's JSON/YAML config) as a single ConfigMap key, then mounting it directly into the container at the expected path.
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+data:
+  nginx.conf: |
+    server {
+      listen 80;
+      location / {
+        proxy_pass http://backend-service;
+      }
+    }
+```
+
+```yaml
+volumeMounts:
+  - name: nginx-config-volume
+    mountPath: /etc/nginx/conf.d/default.conf
+    subPath: nginx.conf # mount just this ONE file, not the whole directory
+volumes:
+  - name: nginx-config-volume
+    configMap:
+      name: nginx-config
+```
+
+`subPath` mounts a single key from the ConfigMap as a specific file, rather than replacing the entire target directory with the ConfigMap's contents — important when the target directory needs to contain other files too.
+
+## ConfigMaps Are Namespace-Scoped
+
+A ConfigMap only exists within (and is only usable by Pods in) the namespace it was created in — a common source of confusion when a Pod in one namespace can't find a ConfigMap that exists in a different namespace.
+
+```bash
+kubectl create configmap app-config --namespace=production
+kubectl get configmaps --namespace=production
+```
+
+## ConfigMaps vs Secrets — When to Use Which
+
+```
+ConfigMap:  non-sensitive configuration (feature flags, log levels, non-secret URLs)
+Secret:      sensitive data (passwords, API keys, certificates) — base64-encoded (NOT encrypted by
+              default, requiring additional cluster-level encryption-at-rest configuration for real protection)
+```
+
+(Full detail on Secrets in the dedicated Secrets notes — the mechanics of consuming them as env vars/volumes are nearly identical to ConfigMaps, but the security handling differs significantly.)
+
+## Common Interview-Style Questions
+
+- **What problem does a ConfigMap solve?**
+  It separates configuration data from the application's container image, letting the same image be reused across different environments (dev/staging/production) with different configuration, and allowing config changes without rebuilding the image.
+
+- **What are the two main ways to consume a ConfigMap inside a Pod?**
+  As environment variables (either individual keys via `configMapKeyRef` or all keys via `envFrom`/`configMapRef`), or as mounted files in a volume (where each key becomes a file whose content is the value) — useful when the configuration is more naturally a config file than discrete environment variables.
+
+- **If you update a ConfigMap, does a running Pod automatically pick up the new values?**
+  Environment variables sourced from a ConfigMap do not auto-update in a running Pod and require a restart; volume-mounted ConfigMap files do eventually sync within the running Pod (though the application itself typically still needs logic to detect and reload the changed file, which most apps don't do by default).
+
+- **How do teams typically ensure a Deployment actually rolls out when a referenced ConfigMap changes?**
+  Since a ConfigMap update alone doesn't trigger a Deployment rollout, a common pattern adds a checksum annotation (often generated by a templating tool like Helm) to the Pod template that changes whenever the ConfigMap's content changes, forcing Kubernetes to recognize the Pod template as modified and trigger a rollout; dedicated tools like Reloader automate this pattern.
+
+- **What does the `subPath` field accomplish when mounting a ConfigMap volume?**
+  It mounts a single specific key from the ConfigMap as one file at the target path, rather than replacing the entire target directory's contents with the ConfigMap's keys — important when the target directory needs to retain other existing files alongside the mounted config.
