@@ -5,60 +5,199 @@ const contentDir = path.join(process.cwd(), "content");
 
 export type ContentType = "markdown" | "javascript";
 
+/* ---------------------------------------------
+   Flat topic type
+--------------------------------------------- */
+
 export type Topic = {
   slug: string;
   title: string;
   type: ContentType;
-
-  // Full path split into parts
-  // Example:
-  // ["01-React-Fundamentals", "02-JSX"]
   path: string[];
-
-  // Folder containing the file
-  // Example: "01-React-Fundamentals"
   folder: string | null;
 };
 
-/**
- * Get all top-level categories
- *
- * content/
- * ├── react/
- * ├── javascript/
- * └── nodejs/
- */
+/* ---------------------------------------------
+   Recursive sidebar tree
+--------------------------------------------- */
+
+export type ContentTree =
+  | {
+      type: "folder";
+      name: string;
+      title: string;
+      path: string[];
+      children: ContentTree[];
+    }
+  | {
+      type: "file";
+      name: string;
+      title: string;
+      slug: string;
+      path: string[];
+      contentType: ContentType;
+    };
+
+/* ---------------------------------------------
+   Get all categories
+--------------------------------------------- */
+
 export function getAllCategories() {
   return fs
-    .readdirSync(contentDir, {
-      withFileTypes: true,
-    })
+    .readdirSync(contentDir, { withFileTypes: true })
     .filter((item) => item.isDirectory())
     .map((item) => item.name);
 }
 
-/**
- * Recursively find all .md and .js files
- */
+/* ---------------------------------------------
+   Format title
+--------------------------------------------- */
+
+function formatTitle(value: string) {
+  return value
+    .replace(/^\d+[-_]?/, "")
+    .replace(/[-_]/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+/* ---------------------------------------------
+   Get number from filename/folder name
+   Example:
+   01-React       -> 1
+   02-Hooks       -> 2
+   10-Suspense    -> 10
+--------------------------------------------- */
+
+function getOrder(value: string) {
+  const match = value.match(/^(\d+)/);
+
+  if (!match) {
+    return Number.MAX_SAFE_INTEGER;
+  }
+
+  return Number(match[1]);
+}
+
+/* ---------------------------------------------
+   Sort folders + files together
+--------------------------------------------- */
+
+function sortEntries(a: fs.Dirent, b: fs.Dirent) {
+  const orderA = getOrder(a.name);
+  const orderB = getOrder(b.name);
+
+  // First sort by number
+  if (orderA !== orderB) {
+    return orderA - orderB;
+  }
+
+  // If numbers are the same, sort alphabetically
+  return a.name.localeCompare(b.name);
+}
+
+/* ---------------------------------------------
+   Recursive content tree
+--------------------------------------------- */
+
+export function getContentTree(category: string): ContentTree[] {
+  const categoryDir = path.join(contentDir, category);
+
+  if (!fs.existsSync(categoryDir)) {
+    return [];
+  }
+
+  function buildTree(
+    currentDir: string,
+    parentPath: string[] = [],
+  ): ContentTree[] {
+    const entries = fs
+      .readdirSync(currentDir, { withFileTypes: true })
+      .sort(sortEntries);
+
+    return entries
+      .map((entry): ContentTree | null => {
+        const fullPath = path.join(currentDir, entry.name);
+
+        /* -----------------------------
+           Folder
+        ----------------------------- */
+
+        if (entry.isDirectory()) {
+          const folderName = entry.name;
+
+          return {
+            type: "folder",
+            name: folderName,
+            title: formatTitle(folderName),
+            path: [...parentPath, folderName],
+            children: buildTree(fullPath, [...parentPath, folderName]),
+          };
+        }
+
+        /* -----------------------------
+           Markdown file
+        ----------------------------- */
+
+        if (entry.isFile() && entry.name.endsWith(".md")) {
+          const fileName = entry.name.replace(/\.md$/, "");
+
+          return {
+            type: "file",
+            name: entry.name,
+            title: formatTitle(fileName),
+            slug: [...parentPath, fileName].join("/"),
+            path: [...parentPath, fileName],
+            contentType: "markdown",
+          };
+        }
+
+        /* -----------------------------
+           JavaScript file
+        ----------------------------- */
+
+        if (entry.isFile() && entry.name.endsWith(".js")) {
+          const fileName = entry.name.replace(/\.js$/, "");
+
+          return {
+            type: "file",
+            name: entry.name,
+            title: formatTitle(fileName),
+            slug: [...parentPath, fileName].join("/"),
+            path: [...parentPath, fileName],
+            contentType: "javascript",
+          };
+        }
+
+        return null;
+      })
+      .filter((item): item is ContentTree => item !== null);
+  }
+
+  return buildTree(categoryDir);
+}
+
+/* ---------------------------------------------
+   Get files recursively
+   Used for generateStaticParams
+--------------------------------------------- */
+
 function getFilesRecursively(
   dir: string,
   parentPath: string[] = [],
 ): string[][] {
-  const entries = fs.readdirSync(dir, {
-    withFileTypes: true,
-  });
+  const entries = fs
+    .readdirSync(dir, { withFileTypes: true })
+    .sort(sortEntries);
 
   const files: string[][] = [];
 
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
 
-    // If folder, go inside it
     if (entry.isDirectory()) {
       files.push(...getFilesRecursively(fullPath, [...parentPath, entry.name]));
     }
 
-    // If markdown/javascript file
     if (
       entry.isFile() &&
       (entry.name.endsWith(".md") || entry.name.endsWith(".js"))
@@ -72,25 +211,10 @@ function getFilesRecursively(
   return files;
 }
 
-/**
- * Remove numbering from names
- *
- * "01-React-Fundamentals"
- *        ↓
- * "React Fundamentals"
- */
-function formatTitle(value: string) {
-  return value
-    .replace(/^\d+-/, "")
-    .replace(/-/g, " ")
-    .replace(/\b\w/g, (char) => char.toUpperCase());
-}
+/* ---------------------------------------------
+   Get all topics
+--------------------------------------------- */
 
-/**
- * Get all topics inside a category
- *
- * This works recursively.
- */
 export function getAllTopics(category: string): Topic[] {
   const categoryDir = path.join(contentDir, category);
 
@@ -113,36 +237,18 @@ export function getAllTopics(category: string): Topic[] {
 
     return {
       slug: parts.join("/"),
-
       title: formatTitle(fileName),
-
       type: isJavaScript ? "javascript" : "markdown",
-
       path: parts,
-
       folder: parts.length > 1 ? parts[0] : null,
     };
   });
 }
 
-/**
- * Get one topic's actual content
- *
- * Example:
- *
- * category = "react"
- *
- * slug = [
- *   "01-React-Fundamentals",
- *   "02-JSX"
- * ]
- *
- * Result:
- *
- * content/react/
- * └── 01-React-Fundamentals/
- *     └── 02-JSX.md
- */
+/* ---------------------------------------------
+   Get topic content
+--------------------------------------------- */
+
 export function getTopicContent(category: string, slug: string[]) {
   const categoryDir = path.join(contentDir, category);
 

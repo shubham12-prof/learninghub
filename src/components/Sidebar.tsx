@@ -1,21 +1,165 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { X } from "lucide-react";
+
+import {
+  ChevronRight,
+  FileCode2,
+  FileText,
+  Folder,
+  FolderOpen,
+  X,
+} from "lucide-react";
 
 import { useLayout } from "@/components/LayoutContext";
 
-type Topic = {
-  slug: string;
-  title: string;
-  type: "markdown" | "javascript";
-};
+type ContentTree =
+  | {
+      type: "folder";
+      name: string;
+      title: string;
+      path: string[];
+      children: ContentTree[];
+    }
+  | {
+      type: "file";
+      name: string;
+      title: string;
+      slug: string;
+      path: string[];
+      contentType: "markdown" | "javascript";
+    };
 
 type SidebarProps = {
-  topics: Topic[];
+  topics: ContentTree[];
   activeSlug: string;
   category: string;
 };
+
+/* ---------------------------------------------
+   Tree Item
+--------------------------------------------- */
+
+function TreeItem({
+  item,
+  activeSlug,
+  category,
+  closeSidebar,
+}: {
+  item: ContentTree;
+  activeSlug: string;
+  category: string;
+  closeSidebar: () => void;
+}) {
+  const activeParts = activeSlug.split("/");
+
+  const folderContainsActive =
+    item.type === "folder" &&
+    item.path.every((part, index) => activeParts[index] === part);
+
+  const [open, setOpen] = useState(
+    item.type === "folder" ? folderContainsActive : false,
+  );
+
+  /* Automatically open the folder
+     containing the current page */
+
+  useEffect(() => {
+    if (folderContainsActive) {
+      setOpen(true);
+    }
+  }, [folderContainsActive]);
+
+  /* ---------------------------------------------
+     FILE
+  --------------------------------------------- */
+
+  if (item.type === "file") {
+    const isActive = activeSlug === item.slug;
+
+    return (
+      <Link
+        href={`/${category}/${item.slug}`}
+        onClick={closeSidebar}
+        className={`
+          group flex items-center gap-2
+          rounded-lg px-3 py-2
+          text-sm transition-all duration-200
+          ${
+            isActive
+              ? "bg-cyan-400/10 text-cyan-400"
+              : "text-gray-400 hover:bg-white/5 hover:text-white"
+          }
+        `}
+      >
+        {item.contentType === "javascript" ? (
+          <FileCode2 className="h-4 w-4 shrink-0" />
+        ) : (
+          <FileText className="h-4 w-4 shrink-0" />
+        )}
+
+        <span className="truncate">{item.title}</span>
+      </Link>
+    );
+  }
+
+  /* ---------------------------------------------
+     FOLDER
+  --------------------------------------------- */
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="
+          flex w-full items-center gap-2
+          rounded-lg px-3 py-2
+          text-left text-sm
+          font-medium text-gray-300
+          transition-all duration-200
+          hover:bg-white/5
+          hover:text-white
+        "
+      >
+        <ChevronRight
+          className={`
+            h-4 w-4 shrink-0
+            transition-transform duration-200
+            ${open ? "rotate-90" : ""}
+          `}
+        />
+
+        {open ? (
+          <FolderOpen className="h-4 w-4 shrink-0 text-cyan-400" />
+        ) : (
+          <Folder className="h-4 w-4 shrink-0 text-cyan-400" />
+        )}
+
+        <span className="truncate">{item.title}</span>
+      </button>
+
+      {open && item.children.length > 0 && (
+        <div className="ml-4 border-l border-white/10 pl-2">
+          {item.children.map((child) => (
+            <TreeItem
+              key={child.path.join("/")}
+              item={child}
+              activeSlug={activeSlug}
+              category={category}
+              closeSidebar={closeSidebar}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------------------------------------------
+   Sidebar
+--------------------------------------------- */
 
 export default function Sidebar({
   topics,
@@ -26,55 +170,40 @@ export default function Sidebar({
 
   return (
     <>
-      {/* =========================
-          MOBILE OVERLAY
-      ========================== */}
+      {/* Mobile overlay */}
+
       {sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
           className="
-            fixed
-            inset-0
-            top-16
-            z-30
-            bg-black/60
+            fixed inset-0 top-16
+            z-30 bg-black/60
             md:hidden
           "
         />
       )}
 
-      {/* =========================
-          SIDEBAR
-      ========================== */}
+      {/* Sidebar */}
+
       <aside
         className={`
-    fixed
-    left-0
-    top-16
-    z-40
+          fixed left-0 top-16 z-40
+          flex h-[calc(100vh-4rem)]
+          w-64 flex-col
+          border-r border-white/10
+          bg-black
+          p-4 sm:p-5
+          transition-transform
+          duration-300
+          ease-in-out
 
-    flex
-    h-[calc(100vh-4rem)]
-    w-64
-    flex-col
-
-    border-r
-    border-white/10
-    bg-black
-
-    p-4
-    sm:p-5
-
-    transition-transform
-    duration-300
-    ease-in-out
-
-    ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
-  `}
+          ${
+            sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+          }
+        `}
       >
-        {/* =========================
-            MOBILE SIDEBAR HEADER
-        ========================== */}
+        {/* Mobile header */}
+
         <div className="mb-5 flex items-center justify-between md:hidden">
           <h2 className="text-2xl font-bold capitalize text-cyan-400">
             {category}
@@ -84,15 +213,10 @@ export default function Sidebar({
             onClick={() => setSidebarOpen(false)}
             aria-label="Close sidebar"
             className="
-              flex
-              h-8
-              w-8
-              z-20
-              items-center
-              justify-center
+              flex h-8 w-8
+              items-center justify-center
               rounded-lg
-              border
-              border-white/10
+              border border-white/10
               text-gray-400
               transition
               hover:border-cyan-400/50
@@ -103,56 +227,37 @@ export default function Sidebar({
           </button>
         </div>
 
-        {/* =========================
-            DESKTOP TITLE
-        ========================== */}
+        {/* Desktop title */}
+
         <h2
           className="
-            mb-8
-            hidden
-            shrink-0
-            text-[30px]
-            font-bold
-            capitalize
-            text-cyan-400
+            mb-6 hidden shrink-0
+            text-[30px] font-bold
+            capitalize text-cyan-400
             md:block
           "
         >
           {category}
         </h2>
 
-        {/* =========================
-            TOPICS
-        ========================== */}
-        <div className="hide-scrollbar flex-1 space-y-2 overflow-y-auto">
-          {topics.map((topic) => (
-            <Link
-              key={topic.slug}
-              href={`/${category}/${topic.slug}`}
-              onClick={() => setSidebarOpen(false)}
-              className={`
-                block
-                rounded-lg
-                px-3
-                py-2.5
-                transition-all
-                duration-200
+        {/* Tree */}
 
-                ${
-                  activeSlug === topic.slug
-                    ? "bg-cyan-400/10 text-cyan-400"
-                    : "text-gray-400 hover:bg-white/5 hover:text-white"
-                }
-              `}
-            >
-              <div className="flex min-w-0 items-center gap-2">
-                <span className="shrink-0">
-                  {topic.type === "javascript" ? "⚡" : "📖"}
-                </span>
-
-                <span className="truncate capitalize">{topic.title}</span>
-              </div>
-            </Link>
+        <div
+          className="
+            hide-scrollbar
+            flex-1
+            overflow-y-auto
+            space-y-1
+          "
+        >
+          {topics.map((item) => (
+            <TreeItem
+              key={item.path.join("/")}
+              item={item}
+              activeSlug={activeSlug}
+              category={category}
+              closeSidebar={() => setSidebarOpen(false)}
+            />
           ))}
         </div>
       </aside>
