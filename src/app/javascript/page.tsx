@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
-export default function JsConceptsIndex() {
-  redirect("/js-concepts/01-var-let-const");
+export default function JavascriptConceptsIndex() {
+  redirect("/javascript/00-INDEX/00-INDEX");
 }

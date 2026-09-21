@@ -30,7 +30,8 @@ import { useLayout } from "@/components/LayoutContext";
 const navLinks = [
   { name: "HTML", href: "/html", icon: FileCode2 },
   { name: "CSS", href: "/css", icon: Palette },
-  { name: "JavaScript", href: "/javascript", icon: Braces },
+  { name: "JS-concepts", href: "/js-concepts", icon: Braces },
+  { name: "javascript", href: "/javascript", icon: Braces },
   { name: "TypeScript", href: "/typescript", icon: Code2 },
   { name: "React", href: "/react", icon: Component },
   { name: "Next.js", href: "/nextjs", icon: Zap },
@@ -50,6 +51,7 @@ const navLinks = [
   { name: "System Design", href: "/system-design", icon: Workflow },
   { name: "DSA", href: "/dsa", icon: ListTree },
   { name: "Top30JS", href: "/top30js", icon: Code2 },
+  { name: "Interview", href: "/interview", icon: Code2 },
 ];
 
 const Navbar = () => {
