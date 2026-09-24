@@ -4,7 +4,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import AppLayout from "@/components/AppLayout";
-import Footer from "@/components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,9 +30,7 @@ export default function RootLayout({
       <body className="m-0 w-full bg-[#000103] text-white">
         <AppLayout>{children}</AppLayout>
 
-        <div className="w-screen">
-          <Footer />
-        </div>
+        <div className="w-screen"></div>
       </body>
     </html>
   );
