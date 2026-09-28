@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { LayoutProvider } from "@/components/LayoutContext";
+import NavigationLoader from "./NavigationLoader";
 
 function Loading() {
   return (
@@ -40,7 +41,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <main className="flex-1">
           <Suspense fallback={<Loading />}>{children}</Suspense>
         </main>
-
+        <NavigationLoader />
         <Footer />
       </div>
     </LayoutProvider>
