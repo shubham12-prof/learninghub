@@ -1,4 +1,4 @@
-// #3: Count Vowels and Consonants in a String
+// #Top30: Count Vowels and Consonants in a String
 
 // 1. Problem
 // Given a string, count the number of vowels and consonants.
