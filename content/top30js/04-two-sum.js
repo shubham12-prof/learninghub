@@ -33,3 +33,21 @@ console.log(twoSum([3, 2, 4], 6));      // [1, 2]
   TIME COMPLEXITY: O(n) - single pass.
   SPACE COMPLEXITY: O(n) - worst case, stores every number seen so far.
 */
+
+// -----------------------------------------------------------------
+// Second option using for loop.
+// -----------------------------------------------------------------
+
+function twosum(nums, target) {
+  let result = [];
+
+  for (let i = 0; i < nums.length; i++) {
+    for (let j = i; j < nums.length; j++) {
+      if (nums[i] + nums[j] === target) {
+        return [nums[i], nums[j]];
+      }
+    }
+  }
+  return [];
+}
+console.log(twosum([2, 7, 11, 15], 9));
