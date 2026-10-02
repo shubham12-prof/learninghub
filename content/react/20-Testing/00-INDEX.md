@@ -1,5 +1,5 @@
 # Testing
 
-- [Jest](01-Jest.md)
-- [RTL](02-RTL.md)
-- [Cypress](03-Cypress.md)
+- [Jest](./01-Jest)
+- [RTL](./02-RTL)
+- [Cypress](./03-Cypress)
