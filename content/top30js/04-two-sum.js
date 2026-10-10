@@ -45,6 +45,7 @@ function twosum(nums, target) {
     for (let j = i; j < nums.length; j++) {
       if (nums[i] + nums[j] === target) {
         return [nums[i], nums[j]];
+        // return [i,j]  if you want index value
       }
     }
   }
