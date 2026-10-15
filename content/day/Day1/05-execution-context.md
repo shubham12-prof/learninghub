@@ -8,11 +8,11 @@ An **execution context (EC)** is the environment where JavaScript code is evalua
 
 There are three types:
 
-| Type | Created when | How many |
-|---|---|---|
-| **Global EC** | The script starts | Exactly 1 |
-| **Function EC** | A function is **called** | One per call |
-| **Eval EC** | `eval()` runs (avoid using it) | Rare |
+| Type            | Created when                   | How many     |
+| --------------- | ------------------------------ | ------------ |
+| **Global EC**   | The script starts              | Exactly 1    |
+| **Function EC** | A function is **called**       | One per call |
+| **Eval EC**     | `eval()` runs (avoid using it) | Rare         |
 
 ## 2. The two phases
 
@@ -64,12 +64,12 @@ console.log(sq);
 
 **Creation phase of the Global EC**
 
-| Name | Value |
-|---|---|
-| `n` | `undefined` |
-| `square` | `function square(num) {...}` |
-| `sq` | `undefined` |
-| `this` | `globalThis` (or `{}` in a Node CommonJS file) |
+| Name     | Value                                          |
+| -------- | ---------------------------------------------- |
+| `n`      | `undefined`                                    |
+| `square` | `function square(num) {...}`                   |
+| `sq`     | `undefined`                                    |
+| `this`   | `globalThis` (or `{}` in a Node CommonJS file) |
 
 **Execution phase of the Global EC**
 
@@ -79,12 +79,12 @@ console.log(sq);
 
 **Function EC for `square(2)`: Creation**
 
-| Name | Value |
-|---|---|
-| `num` | `2` |
-| `result` | `undefined` |
-| `this` | global/undefined (plain call) |
-| outer reference | Global EC |
+| Name            | Value                         |
+| --------------- | ----------------------------- |
+| `num`           | `2`                           |
+| `result`        | `undefined`                   |
+| `this`          | global/undefined (plain call) |
+| outer reference | Global EC                     |
 
 **Function EC for `square(2)`: Execution**
 
@@ -106,9 +106,19 @@ Step 5: [ Global ]  ->  [ ]        <- script ends
 ## 6. Nested calls
 
 ```js
-function first()  { console.log("first start");  second(); console.log("first end"); }
-function second() { console.log("second start"); third();  console.log("second end"); }
-function third()  { console.log("third"); }
+function first() {
+  console.log("first start");
+  second();
+  console.log("first end");
+}
+function second() {
+  console.log("second start");
+  third();
+  console.log("second end");
+}
+function third() {
+  console.log("third");
+}
 
 first();
 ```
@@ -140,12 +150,12 @@ Always give recursive functions a **base case**.
 
 ## 8. How this connects to everything else
 
-| Concept | Where it comes from in the EC |
-|---|---|
-| Hoisting | The **creation phase** sets up memory before execution |
-| Scope / scope chain | Each EC holds a link to its **outer** environment |
-| Closures | A function's EC keeps its link to the outer environment alive even after the outer EC is popped |
-| `this` | Decided during the **creation phase**, based on how the function was called |
+| Concept             | Where it comes from in the EC                                                                   |
+| ------------------- | ----------------------------------------------------------------------------------------------- |
+| Hoisting            | The **creation phase** sets up memory before execution                                          |
+| Scope / scope chain | Each EC holds a link to its **outer** environment                                               |
+| Closures            | A function's EC keeps its link to the outer environment alive even after the outer EC is popped |
+| `this`              | Decided during the **creation phase**, based on how the function was called                     |
 
 ## 9. Bonus: async code and the event loop (just the idea)
 
@@ -170,6 +180,7 @@ Even with `0` ms, `B` prints last, because `A` and `C` are on the stack and `B` 
 ## 11. Predict the output
 
 **Q1**
+
 ```js
 var x = 1;
 function a() {
@@ -183,6 +194,7 @@ a();
 ```
 
 **Q2**
+
 ```js
 console.log(fn());
 function fn() {
@@ -192,6 +204,7 @@ function fn() {
 ```
 
 **Q3**
+
 ```js
 console.log("1");
 setTimeout(() => console.log("2"), 0);
@@ -200,9 +213,14 @@ console.log("4");
 ```
 
 **Q4**: What is the maximum number of execution contexts on the stack at once?
+
 ```js
-function a() { b(); }
-function b() { c(); }
+function a() {
+  b();
+}
+function b() {
+  c();
+}
 function c() {}
 a();
 ```

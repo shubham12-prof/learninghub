@@ -58,6 +58,7 @@ charFrequency("hello"); // Map(4) { 'h' => 1, 'e' => 1, 'l' => 2, 'o' => 1 }
 ```
 
 Why `Map` can be better:
+
 - Keys can be any type (numbers stay numbers, not strings).
 - No prototype problems (see the warning below).
 - Easy size with `freq.size`.
@@ -105,9 +106,9 @@ console.log(freq[word]); // "function Object() { [native code] }1"  <- bug!
 Fixes:
 
 ```js
-const freq = Object.create(null);      // object with NO prototype
+const freq = Object.create(null); // object with NO prototype
 // or
-const freq = new Map();                // recommended for word counting
+const freq = new Map(); // recommended for word counting
 ```
 
 ## 4. Using the counts
@@ -149,14 +150,14 @@ function isAnagram(a, b) {
   for (const ch of a) freq.set(ch, (freq.get(ch) ?? 0) + 1);
 
   for (const ch of b) {
-    if (!freq.get(ch)) return false;   // missing or already used up
+    if (!freq.get(ch)) return false; // missing or already used up
     freq.set(ch, freq.get(ch) - 1);
   }
   return true;
 }
 
 isAnagram("listen", "silent"); // true
-isAnagram("rat", "car");       // false
+isAnagram("rat", "car"); // false
 ```
 
 - Time: **O(n)** vs the sorting approach `a.split("").sort().join("") === b.split("").sort().join("")` which is O(n log n).
@@ -174,8 +175,8 @@ function firstUnique(str) {
   return null;
 }
 
-firstUnique("swiss");  // "w"
-firstUnique("aabb");   // null
+firstUnique("swiss"); // "w"
+firstUnique("aabb"); // null
 ```
 
 Two passes: one to count, one to find. Still O(n).
@@ -190,7 +191,7 @@ function wordFrequency(text) {
   return freq;
 }
 
-wordFrequency("The cat and the hat"); 
+wordFrequency("The cat and the hat");
 // Map { 'the' => 2, 'cat' => 1, 'and' => 1, 'hat' => 1 }
 ```
 
@@ -205,14 +206,14 @@ const sorted = Object.entries(freq).sort((a, b) => b[1] - a[1]);
 
 ## 5. Edge cases to mention
 
-| Input | Expected |
-|---|---|
-| `""` | `{}` |
-| `"aA"` | `{ a: 1, A: 1 }` (case-sensitive unless you normalise with `toLowerCase()`) |
-| `"a b"` | space is counted as a character (filter it if needed) |
-| `"😀😀"` | `{ "😀": 2 }` works with `for...of` (code points) |
-| `[1, "1"]` with an object | both become key `"1"` -> use `Map` |
-| Non-string / null input | validate first |
+| Input                     | Expected                                                                    |
+| ------------------------- | --------------------------------------------------------------------------- |
+| `""`                      | `{}`                                                                        |
+| `"aA"`                    | `{ a: 1, A: 1 }` (case-sensitive unless you normalise with `toLowerCase()`) |
+| `"a b"`                   | space is counted as a character (filter it if needed)                       |
+| `"😀😀"`                  | `{ "😀": 2 }` works with `for...of` (code points)                           |
+| `[1, "1"]` with an object | both become key `"1"` -> use `Map`                                          |
+| Non-string / null input   | validate first                                                              |
 
 ## 6. Which one should I use in an interview?
 

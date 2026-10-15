@@ -18,37 +18,73 @@ Make a folder called `learninghub-day1` with three files: `index.html`, `app.js`
 ```html
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>LearningHub - Day 1</title>
-  <style>
-    body { font-family: system-ui, sans-serif; max-width: 520px; margin: 2rem auto; padding: 0 1rem; }
-    ul { list-style: none; padding: 0; }
-    .course { display: flex; justify-content: space-between; align-items: center;
-              padding: .75rem 1rem; margin-bottom: .5rem; border: 1px solid #ddd; border-radius: 8px; }
-    .course.done { background: #e8f7ee; border-color: #8fd4a8; }
-    .course.done span { text-decoration: line-through; color: #666; }
-    progress { width: 100%; height: 14px; }
-    button { cursor: pointer; padding: .4rem .8rem; }
-  </style>
-</head>
-<body>
-  <h1>LearningHub</h1>
-  <p id="progress">0 of 3 courses completed</p>
-  <progress id="bar" value="0" max="3"></progress>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LearningHub - Day 1</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 520px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+      }
+      .course {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        margin-bottom: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+      .course.done {
+        background: #e8f7ee;
+        border-color: #8fd4a8;
+      }
+      .course.done span {
+        text-decoration: line-through;
+        color: #666;
+      }
+      progress {
+        width: 100%;
+        height: 14px;
+      }
+      button {
+        cursor: pointer;
+        padding: 0.4rem 0.8rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>LearningHub</h1>
+    <p id="progress">0 of 3 courses completed</p>
+    <progress id="bar" value="0" max="3"></progress>
 
-  <ul id="courses">
-    <li class="course"><span>JavaScript Basics</span><button class="complete-btn">Mark complete</button></li>
-    <li class="course"><span>HTML &amp; CSS</span><button class="complete-btn">Mark complete</button></li>
-    <li class="course"><span>React Intro</span><button class="complete-btn">Mark complete</button></li>
-  </ul>
+    <ul id="courses">
+      <li class="course">
+        <span>JavaScript Basics</span
+        ><button class="complete-btn">Mark complete</button>
+      </li>
+      <li class="course">
+        <span>HTML &amp; CSS</span
+        ><button class="complete-btn">Mark complete</button>
+      </li>
+      <li class="course">
+        <span>React Intro</span
+        ><button class="complete-btn">Mark complete</button>
+      </li>
+    </ul>
 
-  <button id="reset">Reset progress</button>
+    <button id="reset">Reset progress</button>
 
-  <!-- Part A: use app.js. Part B: swap to app-buggy.js -->
-  <script src="app.js"></script>
-</body>
+    <!-- Part A: use app.js. Part B: swap to app-buggy.js -->
+    <script src="app.js"></script>
+  </body>
 </html>
 ```
 
@@ -66,13 +102,13 @@ Make a folder called `learninghub-day1` with three files: `index.html`, `app.js`
 
 ### Concept map (what you practise)
 
-| Requirement | Day 1 concept |
-|---|---|
-| Counter not global | **Closure** + **scope** |
-| One handler per card that remembers which card it is | **Closure** / `let` in loops |
-| Button text change inside the handler | **`this`** in a regular function handler |
-| `const` for elements, `let` only when values change | **`var` / `let` / `const`** |
-| Helper functions defined clearly | **Hoisting** |
+| Requirement                                          | Day 1 concept                            |
+| ---------------------------------------------------- | ---------------------------------------- |
+| Counter not global                                   | **Closure** + **scope**                  |
+| One handler per card that remembers which card it is | **Closure** / `let` in loops             |
+| Button text change inside the handler                | **`this`** in a regular function handler |
+| `const` for elements, `let` only when values change  | **`var` / `let` / `const`**              |
+| Helper functions defined clearly                     | **Hoisting**                             |
 
 ### Hints (read only if stuck)
 
@@ -107,7 +143,7 @@ function createTracker(total, onChange) {
     reset() {
       done.clear();
       onChange(0, total);
-    }
+    },
   };
 }
 
@@ -162,13 +198,13 @@ Create `app-buggy.js` with the code below, then change the `<script src>` in `in
 ```js
 "use strict";
 
-setupButtons();                                     // runs the setup
+setupButtons(); // runs the setup
 
 const courses = document.querySelectorAll(".course");
 const progressText = document.getElementById("progress");
 const resetBtn = document.getElementById("reset");
 
-total = courses.length;                             // how many courses exist
+total = courses.length; // how many courses exist
 
 const setupButtons = () => {
   const buttons = document.querySelectorAll(".complete-btn");
@@ -196,7 +232,7 @@ const tracker = {
     this.completed = 0;
     courses.forEach((c) => c.classList.remove("done"));
     this.render();
-  }
+  },
 };
 
 resetBtn.addEventListener("click", tracker.reset);
@@ -206,12 +242,12 @@ resetBtn.addEventListener("click", tracker.reset);
 
 For each bug write down: **(1)** what you saw, **(2)** which Day 1 concept explains it, **(3)** your fix.
 
-| # | Hint: what you'll see | Which file explains it? |
-|---|---|---|
-| 1 | Page does nothing; console shows a `ReferenceError` about `setupButtons` | `02-hoisting.md` (TDZ) |
-| 2 | After fixing #1, console shows a `ReferenceError: total is not defined` | `01-scope.md` (accidental globals) + `09-interview-var-let-const.md` |
-| 3 | Clicking a course button shows `TypeError: Cannot read properties of undefined` | `03-closures.md` (the 3-3-3 loop problem) |
-| 4 | Clicking **Reset progress** shows `TypeError: this.render is not a function` | `04-this-keyword.md` (lost `this`) |
+| #   | Hint: what you'll see                                                           | Which file explains it?                                              |
+| --- | ------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| 1   | Page does nothing; console shows a `ReferenceError` about `setupButtons`        | `02-hoisting.md` (TDZ)                                               |
+| 2   | After fixing #1, console shows a `ReferenceError: total is not defined`         | `01-scope.md` (accidental globals) + `09-interview-var-let-const.md` |
+| 3   | Clicking a course button shows `TypeError: Cannot read properties of undefined` | `03-closures.md` (the 3-3-3 loop problem)                            |
+| 4   | Clicking **Reset progress** shows `TypeError: this.render is not a function`    | `04-this-keyword.md` (lost `this`)                                   |
 
 Don't scroll down until you've tried each one.
 
@@ -223,7 +259,9 @@ Don't scroll down until you've tried each one.
 
 ```js
 // Fix: define first, call after (or turn it into a function declaration)
-const setupButtons = () => { /* ... */ };
+const setupButtons = () => {
+  /* ... */
+};
 setupButtons();
 ```
 
@@ -240,7 +278,8 @@ const total = courses.length;
 All click handlers share the same `var i`. After the loop finishes `i` is `3`, so `courses[3]` is `undefined` and `.classList` throws.
 
 ```js
-for (let i = 0; i < buttons.length; i++) {      // let -> new `i` per iteration
+for (let i = 0; i < buttons.length; i++) {
+  // let -> new `i` per iteration
   buttons[i].addEventListener("click", function () {
     markDone(i);
   });
@@ -281,7 +320,7 @@ const tracker = {
     this.completed = 0;
     courses.forEach((c) => c.classList.remove("done"));
     this.render();
-  }
+  },
 };
 
 function markDone(index) {
@@ -311,7 +350,7 @@ resetBtn.addEventListener("click", () => tracker.reset());
 2. **Persist progress:** save completed course IDs in `localStorage` and restore them on page load. (Hint: `JSON.stringify([...done])` / `JSON.parse`.)
 3. **Event delegation:** replace the per-button listeners with one listener on `#courses` using `event.target.closest(".complete-btn")`. Notice how `this`/`event.currentTarget` differ.
 4. **`once` init:** wrap your page setup in `once()` so calling it twice can't attach duplicate listeners.
-5. **Write a 5-line summary** in your own words: *"Which closure did I use, and why?"*, which is the kind of answer interviewers love.
+5. **Write a 5-line summary** in your own words: _"Which closure did I use, and why?"_, which is the kind of answer interviewers love.
 
 ### Applying it to your real project
 

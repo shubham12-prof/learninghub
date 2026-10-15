@@ -7,21 +7,21 @@
 Write a function `removeDuplicates(arr)` that returns a new array with duplicate values removed, **keeping the first occurrence** and the original order.
 
 ```js
-removeDuplicates([1, 2, 2, 3, 4, 4, 5]);        // [1, 2, 3, 4, 5]
-removeDuplicates(["a", "b", "a", "c", "b"]);    // ["a", "b", "c"]
-removeDuplicates([]);                           // []
+removeDuplicates([1, 2, 2, 3, 4, 4, 5]); // [1, 2, 3, 4, 5]
+removeDuplicates(["a", "b", "a", "c", "b"]); // ["a", "b", "c"]
+removeDuplicates([]); // []
 ```
 
 The same question is often asked for **strings**: `"programming"` -> `"progamin"`.
 
 ## 2. How to think about it
 
-You need a fast way to answer *"have I seen this value before?"*
+You need a fast way to answer _"have I seen this value before?"_
 
 - Slow way: look through the result array each time -> O(n) per check -> O(n^2) total.
 - Fast way: keep a **Set** (or object) of seen values -> O(1) per check -> O(n) total.
 
-Always ask: *"Should I mutate the original array? Is order important? Are the items primitives or objects?"*
+Always ask: _"Should I mutate the original array? Is order important? Are the items primitives or objects?"_
 
 ## 3. Solutions
 
@@ -186,13 +186,13 @@ removeDuplicateCharsCI("Hello"); // "Helo"
 
 ## 5. Arrays of objects
 
-`Set` compares objects by **reference**, so two objects with the same content are *not* equal:
+`Set` compares objects by **reference**, so two objects with the same content are _not_ equal:
 
 ```js
 const users = [
   { id: 1, name: "Asha" },
   { id: 2, name: "Ravi" },
-  { id: 1, name: "Asha" }
+  { id: 1, name: "Asha" },
 ];
 
 [...new Set(users)].length; // 3 -> nothing removed
@@ -222,15 +222,15 @@ const lastWins = [...new Map(users.map((u) => [u.id, u])).values()];
 
 ## 6. Edge cases to mention
 
-| Input | Expected | Notes |
-|---|---|---|
-| `[]` | `[]` | Empty |
-| `[1]` | `[1]` | Single item |
-| `[1, "1"]` | `[1, "1"]` | Different types are different values (`Set` handles this correctly) |
-| `[NaN, NaN]` | `[NaN]` | `Set` treats `NaN` as equal to itself (but `indexOf` does **not**: it returns -1 for NaN) |
-| `[0, -0]` | `[0]` | `Set` treats `0` and `-0` as the same |
-| `[null, undefined, null]` | `[null, undefined]` | Works with `Set` |
-| Objects | see section 5 | Compare by key |
+| Input                     | Expected            | Notes                                                                                     |
+| ------------------------- | ------------------- | ----------------------------------------------------------------------------------------- |
+| `[]`                      | `[]`                | Empty                                                                                     |
+| `[1]`                     | `[1]`               | Single item                                                                               |
+| `[1, "1"]`                | `[1, "1"]`          | Different types are different values (`Set` handles this correctly)                       |
+| `[NaN, NaN]`              | `[NaN]`             | `Set` treats `NaN` as equal to itself (but `indexOf` does **not**: it returns -1 for NaN) |
+| `[0, -0]`                 | `[0]`               | `Set` treats `0` and `-0` as the same                                                     |
+| `[null, undefined, null]` | `[null, undefined]` | Works with `Set`                                                                          |
+| Objects                   | see section 5       | Compare by key                                                                            |
 
 ## 7. Which one should I use in an interview?
 
@@ -251,16 +251,16 @@ const lastWins = [...new Map(users.map((u) => [u.id, u])).values()];
 
 ```js
 // 1. Keep last occurrence
-const keepLast = (arr) =>
-  arr.filter((item, i) => arr.lastIndexOf(item) === i);
+const keepLast = (arr) => arr.filter((item, i) => arr.lastIndexOf(item) === i);
 
 // 2. Appear exactly once
 const onlyUnique = (arr) =>
   arr.filter((item) => arr.indexOf(item) === arr.lastIndexOf(item));
 
 // 3. Duplicated values (listed once)
-const duplicates = (arr) =>
-  [...new Set(arr.filter((item, i) => arr.indexOf(item) !== i))];
+const duplicates = (arr) => [
+  ...new Set(arr.filter((item, i) => arr.indexOf(item) !== i)),
+];
 
 // 4. First repeated element
 function firstRepeated(arr) {

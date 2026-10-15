@@ -10,15 +10,15 @@ Practise it until it feels natural. Then use the sections below for the follow-u
 
 ## 2. Comparison table
 
-| Feature | `var` | `let` | `const` |
-|---|---|---|---|
-| Scope | **Function** (or global) | **Block** | **Block** |
-| Hoisted? | Yes, initialised as `undefined` | Yes, but in the **TDZ** | Yes, but in the **TDZ** |
-| Access before declaration | `undefined` | `ReferenceError` | `ReferenceError` |
-| Redeclare in same scope | Allowed | `SyntaxError` | `SyntaxError` |
-| Reassign | Allowed | Allowed | **Not allowed** (`TypeError`) |
-| Must initialise at declaration | No | No | **Yes** |
-| Becomes a property of `window`/`globalThis` at top level (scripts) | Yes | No | No |
+| Feature                                                            | `var`                           | `let`                   | `const`                       |
+| ------------------------------------------------------------------ | ------------------------------- | ----------------------- | ----------------------------- |
+| Scope                                                              | **Function** (or global)        | **Block**               | **Block**                     |
+| Hoisted?                                                           | Yes, initialised as `undefined` | Yes, but in the **TDZ** | Yes, but in the **TDZ**       |
+| Access before declaration                                          | `undefined`                     | `ReferenceError`        | `ReferenceError`              |
+| Redeclare in same scope                                            | Allowed                         | `SyntaxError`           | `SyntaxError`                 |
+| Reassign                                                           | Allowed                         | Allowed                 | **Not allowed** (`TypeError`) |
+| Must initialise at declaration                                     | No                              | No                      | **Yes**                       |
+| Becomes a property of `window`/`globalThis` at top level (scripts) | Yes                             | No                      | No                            |
 
 ## 3. Deeper explanation
 
@@ -53,20 +53,20 @@ The **TDZ** is the period from the start of the scope until the declaration line
 
 ```js
 var n = 1;
-var n = 2;        // fine, silently overwrites (can hide bugs)
+var n = 2; // fine, silently overwrites (can hide bugs)
 
 let m = 1;
-let m = 2;        // SyntaxError: Identifier 'm' has already been declared
+let m = 2; // SyntaxError: Identifier 'm' has already been declared
 ```
 
 ### 3.4 Reassignment
 
 ```js
 let count = 0;
-count = 1;        // fine
+count = 1; // fine
 
 const PI = 3.14;
-PI = 3;           // TypeError: Assignment to constant variable.
+PI = 3; // TypeError: Assignment to constant variable.
 ```
 
 ### 3.5 `const` does NOT make a value immutable
@@ -75,19 +75,19 @@ PI = 3;           // TypeError: Assignment to constant variable.
 
 ```js
 const user = { name: "Asha" };
-user.name = "Ravi";       // allowed: the object is changed
-user.age = 25;            // allowed
-user = {};                // TypeError: cannot reassign the variable
+user.name = "Ravi"; // allowed: the object is changed
+user.age = 25; // allowed
+user = {}; // TypeError: cannot reassign the variable
 
 const list = [1, 2];
-list.push(3);             // allowed -> [1, 2, 3]
+list.push(3); // allowed -> [1, 2, 3]
 ```
 
 To make an object (shallowly) immutable use `Object.freeze`:
 
 ```js
 const config = Object.freeze({ theme: "dark" });
-config.theme = "light";   // silently ignored (TypeError in strict mode)
+config.theme = "light"; // silently ignored (TypeError in strict mode)
 console.log(config.theme); // "dark"
 ```
 
@@ -107,7 +107,7 @@ console.log(window.b); // undefined
 ```js
 console.log(typeof notDeclared); // "undefined" (safe for undeclared names)
 
-console.log(typeof tdz);         // ReferenceError!
+console.log(typeof tdz); // ReferenceError!
 let tdz = 1;
 ```
 
@@ -136,7 +136,7 @@ Yes. They are hoisted to the top of their block, but not initialised, so accessi
 `var`'s function scope, silent redeclaration and `undefined` hoisting caused many bugs. `let` and `const` give predictable block scoping.
 
 **Q: If `const` is "constant", why can I push into a `const` array?**
-`const` locks the *binding* (the variable name -> value link). The array object itself is still mutable. Use `Object.freeze` or immutable patterns if you need immutability.
+`const` locks the _binding_ (the variable name -> value link). The array object itself is still mutable. Use `Object.freeze` or immutable patterns if you need immutability.
 
 **Q: Which one should I use by default?**
 `const` by default, `let` when you need to reassign, and don't use `var` in new code.
@@ -145,9 +145,10 @@ Yes. They are hoisted to the top of their block, but not initialised, so accessi
 No. `const x;` is a `SyntaxError: Missing initializer in const declaration`.
 
 **Q: What happens with `const` inside a loop?**
+
 ```js
 for (const item of [1, 2, 3]) {
-  console.log(item);     // works: a new const is created each iteration
+  console.log(item); // works: a new const is created each iteration
 }
 
 for (const i = 0; i < 3; i++) {} // TypeError: i++ tries to reassign
@@ -159,18 +160,21 @@ for (const i = 0; i < 3; i++) {} // TypeError: i++ tries to reassign
 ## 6. Trick questions: predict the output
 
 **Q1**
+
 ```js
 console.log(a);
 var a = 5;
 ```
 
 **Q2**
+
 ```js
 console.log(b);
 let b = 5;
 ```
 
 **Q3**
+
 ```js
 const obj = { x: 1 };
 obj.x = 2;
@@ -178,12 +182,14 @@ console.log(obj.x);
 ```
 
 **Q4**
+
 ```js
 const arr = [1, 2];
 arr = [3];
 ```
 
 **Q5**
+
 ```js
 var x = 1;
 {
@@ -193,6 +199,7 @@ console.log(x);
 ```
 
 **Q6**
+
 ```js
 let y = 1;
 {
@@ -202,6 +209,7 @@ console.log(y);
 ```
 
 **Q7**
+
 ```js
 function f() {
   console.log(v);
@@ -211,6 +219,7 @@ f();
 ```
 
 **Q8**
+
 ```js
 let a = 1;
 let a = 2;

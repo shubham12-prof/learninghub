@@ -8,13 +8,13 @@
 
 JavaScript has three kinds of scope:
 
-| Scope | Created by | Variables that live here |
-|---|---|---|
-| **Global** | The top level of your file/script | `var`, `let`, `const`, functions |
-| **Function** | Every function | `var`, `let`, `const`, parameters |
-| **Block** | Any `{ }` (if, for, while, plain block) | `let`, `const` only (`var` ignores blocks) |
+| Scope        | Created by                              | Variables that live here                   |
+| ------------ | --------------------------------------- | ------------------------------------------ |
+| **Global**   | The top level of your file/script       | `var`, `let`, `const`, functions           |
+| **Function** | Every function                          | `var`, `let`, `const`, parameters          |
+| **Block**    | Any `{ }` (if, for, while, plain block) | `let`, `const` only (`var` ignores blocks) |
 
-JavaScript uses **lexical scope** (also called static scope): the scope of a variable is decided by *where you write the code*, not by where you call it from.
+JavaScript uses **lexical scope** (also called static scope): the scope of a variable is decided by _where you write the code_, not by where you call it from.
 
 ## 2. Analogy
 
@@ -25,15 +25,15 @@ Think of nested rooms in a house. If you are in the bedroom and need a charger, 
 ### 3.1 Global vs function scope
 
 ```js
-var appName = "LearningHub";        // global
+var appName = "LearningHub"; // global
 
 function showCourse() {
-  var course = "JavaScript";        // function scope
-  console.log(appName, course);     // LearningHub JavaScript
+  var course = "JavaScript"; // function scope
+  console.log(appName, course); // LearningHub JavaScript
 }
 
 showCourse();
-console.log(typeof course);         // "undefined" (course is not visible outside)
+console.log(typeof course); // "undefined" (course is not visible outside)
 ```
 
 ### 3.2 Block scope: `var` vs `let`/`const`
@@ -45,9 +45,9 @@ if (true) {
   const c = 3;
 }
 
-console.log(a);           // 1            -> var ignores the block
-console.log(typeof b);    // "undefined"  -> let is block scoped
-console.log(typeof c);    // "undefined"  -> const is block scoped
+console.log(a); // 1            -> var ignores the block
+console.log(typeof b); // "undefined"  -> let is block scoped
+console.log(typeof c); // "undefined"  -> const is block scoped
 // console.log(b);        // would throw ReferenceError: b is not defined
 ```
 
@@ -84,7 +84,7 @@ let x = "outer";
   console.log(x); // inner
 }
 
-console.log(x);   // outer
+console.log(x); // outer
 ```
 
 ### 3.5 Lexical scope: where it is written matters, not where it is called
@@ -98,7 +98,7 @@ function printName() {
 
 function run() {
   const name = "run";
-  printName();          // prints "global", NOT "run"
+  printName(); // prints "global", NOT "run"
 }
 
 run();
@@ -108,9 +108,11 @@ run();
 
 1. **Accidental globals.** Forgetting `let/const/var` creates a global variable (in non-strict mode).
    ```js
-   function oops() { total = 10; }   // no declaration
+   function oops() {
+     total = 10;
+   } // no declaration
    oops();
-   console.log(total);               // 10 (leaked to global). In strict mode this throws ReferenceError.
+   console.log(total); // 10 (leaked to global). In strict mode this throws ReferenceError.
    ```
 2. **Assuming `var` is block scoped.** It is not. It is function scoped.
 3. **Using a block variable outside its block** and getting `ReferenceError`.
@@ -119,6 +121,7 @@ run();
 ## 5. Predict the output
 
 **Q1**
+
 ```js
 let x = "global";
 function outer() {
@@ -132,6 +135,7 @@ outer();
 ```
 
 **Q2**
+
 ```js
 function test() {
   if (true) {
@@ -143,6 +147,7 @@ test();
 ```
 
 **Q3**
+
 ```js
 function foo() {
   y = 5;
@@ -152,6 +157,7 @@ console.log(y);
 ```
 
 **Q4**
+
 ```js
 let a = 1;
 {
@@ -162,6 +168,7 @@ console.log(a);
 ```
 
 **Q5**
+
 ```js
 for (var i = 0; i < 3; i++) {}
 console.log(i);

@@ -8,13 +8,13 @@
 
 ## 2. The 5 rules (check them in this order)
 
-| # | Rule | How the function is called | `this` is |
-|---|---|---|---|
-| 1 | **`new` binding** | `new Foo()` | The brand-new object being created |
-| 2 | **Explicit binding** | `fn.call(obj)`, `fn.apply(obj)`, `fn.bind(obj)()` | `obj` |
-| 3 | **Implicit binding** | `obj.fn()` | `obj` (the thing left of the dot) |
-| 4 | **Default binding** | plain `fn()` | `globalThis` (sloppy mode) or `undefined` (strict mode / modules / classes) |
-| 5 | **Arrow functions** | any way | **Inherited** from the surrounding scope where the arrow was written. Cannot be changed by `call/apply/bind`. |
+| #   | Rule                 | How the function is called                        | `this` is                                                                                                     |
+| --- | -------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| 1   | **`new` binding**    | `new Foo()`                                       | The brand-new object being created                                                                            |
+| 2   | **Explicit binding** | `fn.call(obj)`, `fn.apply(obj)`, `fn.bind(obj)()` | `obj`                                                                                                         |
+| 3   | **Implicit binding** | `obj.fn()`                                        | `obj` (the thing left of the dot)                                                                             |
+| 4   | **Default binding**  | plain `fn()`                                      | `globalThis` (sloppy mode) or `undefined` (strict mode / modules / classes)                                   |
+| 5   | **Arrow functions**  | any way                                           | **Inherited** from the surrounding scope where the arrow was written. Cannot be changed by `call/apply/bind`. |
 
 ## 3. Analogy
 
@@ -47,7 +47,7 @@ const user = {
   name: "Asha",
   greet() {
     console.log("Hi, I am " + this.name);
-  }
+  },
 };
 
 user.greet(); // Hi, I am Asha
@@ -60,12 +60,12 @@ const user = {
   name: "Asha",
   greet() {
     console.log("Hi, I am " + this.name);
-  }
+  },
 };
 
 const fn = user.greet; // copy the function out of the object
-fn();                  // `this` is no longer `user` -> "Hi, I am undefined"
-                       // (in strict mode: TypeError: Cannot read properties of undefined)
+fn(); // `this` is no longer `user` -> "Hi, I am undefined"
+// (in strict mode: TypeError: Cannot read properties of undefined)
 ```
 
 Same problem with callbacks:
@@ -77,8 +77,8 @@ setTimeout(user.greet, 100); // this is lost here too
 **Fixes:**
 
 ```js
-setTimeout(user.greet.bind(user), 100);          // bind
-setTimeout(() => user.greet(), 100);             // wrap in an arrow function
+setTimeout(user.greet.bind(user), 100); // bind
+setTimeout(() => user.greet(), 100); // wrap in an arrow function
 ```
 
 ### 4.4 Explicit binding: `call`, `apply`, `bind`
@@ -90,18 +90,18 @@ function intro(city, country) {
 
 const person = { name: "Ravi" };
 
-intro.call(person, "Delhi", "India");     // call: args one by one
-intro.apply(person, ["Delhi", "India"]);  // apply: args as an array
+intro.call(person, "Delhi", "India"); // call: args one by one
+intro.apply(person, ["Delhi", "India"]); // apply: args as an array
 
 const boundIntro = intro.bind(person, "Delhi"); // bind: returns a NEW function
-boundIntro("India");                            // Ravi from Delhi, India
+boundIntro("India"); // Ravi from Delhi, India
 ```
 
-| Method | Runs immediately? | Arguments |
-|---|---|---|
-| `call` | Yes | comma separated |
-| `apply` | Yes | array |
-| `bind` | No (returns a new function) | comma separated (can be partial) |
+| Method  | Runs immediately?           | Arguments                        |
+| ------- | --------------------------- | -------------------------------- |
+| `call`  | Yes                         | comma separated                  |
+| `apply` | Yes                         | array                            |
+| `bind`  | No (returns a new function) | comma separated (can be partial) |
 
 ### 4.5 `new` binding
 
@@ -121,10 +121,10 @@ const timer = {
   seconds: 0,
   start() {
     setInterval(() => {
-      this.seconds++;          // `this` = timer (inherited from start())
+      this.seconds++; // `this` = timer (inherited from start())
       console.log(this.seconds);
     }, 1000);
-  }
+  },
 };
 ```
 
@@ -135,7 +135,7 @@ If you used a regular `function () {}` inside `setInterval`, `this` would NOT be
 ```js
 const obj = {
   name: "Asha",
-  greet: () => console.log(this.name) // `this` is NOT obj (it's the outer scope)
+  greet: () => console.log(this.name), // `this` is NOT obj (it's the outer scope)
 };
 obj.greet(); // undefined
 ```
@@ -195,37 +195,48 @@ When you see `this`, ask in order:
 ## 7. Predict the output
 
 **Q1**
+
 ```js
 const obj = {
   name: "A",
-  show() { console.log(this.name); }
+  show() {
+    console.log(this.name);
+  },
 };
 obj.show();
 ```
 
 **Q2**
+
 ```js
 const obj = {
   name: "A",
-  show() { console.log(this.name); }
+  show() {
+    console.log(this.name);
+  },
 };
 const f = obj.show;
 f();
 ```
+
 (Assume sloppy mode in Node/browser. What happens in strict mode?)
 
 **Q3**
+
 ```js
 const obj = {
   name: "A",
-  show: () => console.log(this.name)
+  show: () => console.log(this.name),
 };
 obj.show();
 ```
 
 **Q4**
+
 ```js
-function show() { console.log(this.name); }
+function show() {
+  console.log(this.name);
+}
 const a = { name: "A" };
 const b = { name: "B" };
 show.call(a);
@@ -233,21 +244,27 @@ show.call(b);
 ```
 
 **Q5**
+
 ```js
-const bound = function () { return this.x; }.bind({ x: 1 });
+const bound = function () {
+  return this.x;
+}.bind({ x: 1 });
 console.log(bound.call({ x: 2 }));
 ```
 
 **Q6**
+
 ```js
 const obj = {
   name: "A",
   outer() {
-    return function () { return this === undefined || this === globalThis; };
+    return function () {
+      return this === undefined || this === globalThis;
+    };
   },
   outerArrow() {
     return () => this === obj;
-  }
+  },
 };
 console.log(obj.outer()(), obj.outerArrow()());
 ```

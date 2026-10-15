@@ -7,17 +7,17 @@
 Write a function `reverseString(str)` that returns the string reversed.
 
 ```js
-reverseString("hello");   // "olleh"
-reverseString("");        // ""
-reverseString("a");       // "a"
-reverseString("JS rocks") // "skcor SJ"
+reverseString("hello"); // "olleh"
+reverseString(""); // ""
+reverseString("a"); // "a"
+reverseString("JS rocks"); // "skcor SJ"
 ```
 
 ## 2. How to think about it
 
 - Strings are **immutable** in JavaScript. You cannot swap characters in place, so you always build a **new** string (or convert to an array first).
 - Reversing means: last character first, first character last.
-- Always ask the interviewer: *"Should I handle Unicode / emojis? Should I mutate in place?"* Asking shows maturity.
+- Always ask the interviewer: _"Should I handle Unicode / emojis? Should I mutate in place?"_ Asking shows maturity.
 
 ## 3. Solutions (simple -> advanced)
 
@@ -84,8 +84,8 @@ function reverseString(str) {
 
 ```js
 function reverseString(str) {
-  if (str === "") return "";                       // base case
-  return reverseString(str.slice(1)) + str[0];     // reverse the rest, then add first char at the end
+  if (str === "") return ""; // base case
+  return reverseString(str.slice(1)) + str[0]; // reverse the rest, then add first char at the end
 }
 ```
 
@@ -126,14 +126,14 @@ function reverseString(str) {
 
 ## 4. Edge cases to mention
 
-| Input | Expected | Notes |
-|---|---|---|
-| `""` | `""` | Empty string |
-| `"a"` | `"a"` | Single character |
-| `"  hi "` | `" ih  "` | Spaces are kept |
-| `"Ab"` | `"bA"` | Case is preserved |
-| `123` (number) | depends | Validate input: `typeof str !== "string"` -> throw or convert with `String(str)` |
-| `"😀ab"` | `"ba😀"` | **Unicode trap**, see below |
+| Input          | Expected  | Notes                                                                            |
+| -------------- | --------- | -------------------------------------------------------------------------------- |
+| `""`           | `""`      | Empty string                                                                     |
+| `"a"`          | `"a"`     | Single character                                                                 |
+| `"  hi "`      | `" ih  "` | Spaces are kept                                                                  |
+| `"Ab"`         | `"bA"`    | Case is preserved                                                                |
+| `123` (number) | depends   | Validate input: `typeof str !== "string"` -> throw or convert with `String(str)` |
+| `"😀ab"`       | `"ba😀"`  | **Unicode trap**, see below                                                      |
 
 ### The Unicode trap
 
@@ -141,7 +141,7 @@ function reverseString(str) {
 
 ```js
 "😀ab".split("").reverse().join(""); // "ba\uDE00\uD83D" -> broken emoji
-[..."😀ab"].reverse().join("");      // "ba😀" -> correct
+[..."😀ab"].reverse().join(""); // "ba😀" -> correct
 ```
 
 The spread operator `[...str]` and `for...of` iterate by **code points**, so they are safer. (Some emojis made of several code points, like family or flag emojis, still need `Intl.Segmenter` to handle properly. Mentioning this in an interview is a bonus.)
@@ -188,19 +188,24 @@ const reverseWords = (s) => s.split(" ").reverse().join(" ");
 
 // 3. Reverse each word
 const reverseEachWord = (s) =>
-  s.split(" ").map((w) => [...w].reverse().join("")).join(" ");
+  s
+    .split(" ")
+    .map((w) => [...w].reverse().join(""))
+    .join(" ");
 
 // 4. Reverse vowels (two pointers)
 function reverseVowels(s) {
   const vowels = new Set("aeiouAEIOU");
   const chars = [...s];
-  let l = 0, r = chars.length - 1;
+  let l = 0,
+    r = chars.length - 1;
   while (l < r) {
     if (!vowels.has(chars[l])) l++;
     else if (!vowels.has(chars[r])) r--;
     else {
       [chars[l], chars[r]] = [chars[r], chars[l]];
-      l++; r--;
+      l++;
+      r--;
     }
   }
   return chars.join("");

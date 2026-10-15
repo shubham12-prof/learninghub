@@ -8,7 +8,7 @@ A **closure** is a function that **remembers the variables from the place where 
 
 Formally: a closure = a function + a reference to its surrounding (lexical) environment.
 
-Every function in JavaScript forms a closure. It becomes *interesting* when you return an inner function or pass it somewhere else, and it still uses the outer variables.
+Every function in JavaScript forms a closure. It becomes _interesting_ when you return an inner function or pass it somewhere else, and it still uses the outer variables.
 
 ## 2. Analogy
 
@@ -30,19 +30,27 @@ function outer() {
 }
 
 const fn = outer(); // outer() has finished running
-fn();               // "Hello from outer"  -> inner still remembers `message`
+fn(); // "Hello from outer"  -> inner still remembers `message`
 ```
 
 ### 3.2 A counter with private data
 
 ```js
 function createCounter() {
-  let count = 0;          // private: nobody outside can touch it directly
+  let count = 0; // private: nobody outside can touch it directly
 
   return {
-    increment() { count++; return count; },
-    decrement() { count--; return count; },
-    get()       { return count; }
+    increment() {
+      count++;
+      return count;
+    },
+    decrement() {
+      count--;
+      return count;
+    },
+    get() {
+      return count;
+    },
   };
 }
 
@@ -50,7 +58,7 @@ const counter = createCounter();
 console.log(counter.increment()); // 1
 console.log(counter.increment()); // 2
 console.log(counter.decrement()); // 1
-console.log(counter.count);       // undefined -> `count` is truly private
+console.log(counter.count); // undefined -> `count` is truly private
 ```
 
 Each call to `createCounter()` makes a **new, separate** `count`:
@@ -189,6 +197,7 @@ console.log(fastSquare(9)); // 81 (from cache)
 ## 6. Predict the output
 
 **Q1**
+
 ```js
 function outer() {
   let x = 10;
@@ -203,6 +212,7 @@ console.log(f());
 ```
 
 **Q2**
+
 ```js
 for (var i = 0; i < 3; i++) {
   setTimeout(() => console.log(i), 0);
@@ -210,6 +220,7 @@ for (var i = 0; i < 3; i++) {
 ```
 
 **Q3**
+
 ```js
 for (let i = 0; i < 3; i++) {
   setTimeout(() => console.log(i), 0);
@@ -217,6 +228,7 @@ for (let i = 0; i < 3; i++) {
 ```
 
 **Q4**
+
 ```js
 function make() {
   let n = 1;
@@ -228,6 +240,7 @@ make()();
 ```
 
 **Q5**
+
 ```js
 const a = (function () {
   let c = 0;

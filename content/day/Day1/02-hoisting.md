@@ -4,17 +4,17 @@
 
 ## 1. What is hoisting?
 
-Before JavaScript runs your code, it scans the scope and **registers all declarations first**. This makes it *look like* declarations are "moved to the top". Nothing is physically moved. It is a side effect of the **creation phase** (see `05-execution-context.md`).
+Before JavaScript runs your code, it scans the scope and **registers all declarations first**. This makes it _look like_ declarations are "moved to the top". Nothing is physically moved. It is a side effect of the **creation phase** (see `05-execution-context.md`).
 
 What gets hoisted depends on how you declare:
 
-| Declaration | Hoisted? | Value before the line runs |
-|---|---|---|
-| `var x = 5` | Yes (declaration only) | `undefined` |
-| `let x = 5` / `const x = 5` | Yes, but in the **Temporal Dead Zone** | Accessing throws `ReferenceError` |
-| `function foo() {}` | Yes (whole function) | Fully usable |
-| `var foo = function() {}` | Only the `var` part | `undefined` -> calling gives `TypeError` |
-| `class A {}` | Yes, but in TDZ | Accessing throws `ReferenceError` |
+| Declaration                 | Hoisted?                               | Value before the line runs               |
+| --------------------------- | -------------------------------------- | ---------------------------------------- |
+| `var x = 5`                 | Yes (declaration only)                 | `undefined`                              |
+| `let x = 5` / `const x = 5` | Yes, but in the **Temporal Dead Zone** | Accessing throws `ReferenceError`        |
+| `function foo() {}`         | Yes (whole function)                   | Fully usable                             |
+| `var foo = function() {}`   | Only the `var` part                    | `undefined` -> calling gives `TypeError` |
+| `class A {}`                | Yes, but in TDZ                        | Accessing throws `ReferenceError`        |
 
 ## 2. Analogy
 
@@ -33,10 +33,10 @@ console.log(a); // 5
 JavaScript sees it like this:
 
 ```js
-var a;           // declaration registered first
-console.log(a);  // undefined
-a = 5;           // assignment happens here
-console.log(a);  // 5
+var a; // declaration registered first
+console.log(a); // undefined
+a = 5; // assignment happens here
+console.log(a); // 5
 ```
 
 ### 3.2 `let` and `const`: Temporal Dead Zone (TDZ)
@@ -48,7 +48,7 @@ console.log(b); // ReferenceError: Cannot access 'b' before initialization
 let b = 5;
 ```
 
-Note the error message says *"before initialization"*, not *"is not defined"*. That proves `b` was hoisted (JavaScript knows it exists) but you cannot touch it yet.
+Note the error message says _"before initialization"_, not _"is not defined"_. That proves `b` was hoisted (JavaScript knows it exists) but you cannot touch it yet.
 
 ### 3.3 Function declarations are fully hoisted
 
@@ -109,7 +109,7 @@ Inside `f`, `var x` is hoisted to the top of `f`, so it **shadows** the global `
 
 ## 4. Common mistakes
 
-1. Thinking `let/const` are *not* hoisted. They are hoisted, but protected by the TDZ.
+1. Thinking `let/const` are _not_ hoisted. They are hoisted, but protected by the TDZ.
 2. Calling a function expression or arrow function before its definition.
 3. Relying on `var` hoisting to "make code work". It hides bugs.
 4. Forgetting that **only the declaration** is hoisted, never the assignment.
@@ -117,18 +117,21 @@ Inside `f`, `var x` is hoisted to the top of `f`, so it **shadows** the global `
 ## 5. Predict the output
 
 **Q1**
+
 ```js
 console.log(a);
 var a = 10;
 ```
 
 **Q2**
+
 ```js
 console.log(b);
 let b = 10;
 ```
 
 **Q3**
+
 ```js
 foo();
 function foo() {
@@ -137,6 +140,7 @@ function foo() {
 ```
 
 **Q4**
+
 ```js
 bar();
 var bar = function () {
@@ -145,6 +149,7 @@ var bar = function () {
 ```
 
 **Q5**
+
 ```js
 var x = 1;
 function test() {
@@ -156,6 +161,7 @@ test();
 ```
 
 **Q6**
+
 ```js
 console.log(typeof fn);
 var fn = 5;

@@ -13,7 +13,7 @@ Use this structure: **definition -> tiny example -> why it works -> real use**.
 
 ```js
 function makeCounter() {
-  let count = 0;                 // lives in makeCounter's scope
+  let count = 0; // lives in makeCounter's scope
   return function () {
     count++;
     return count;
@@ -32,15 +32,19 @@ Say:
 ## 3. Common interview questions and model answers
 
 ### Q1. What is a closure?
+
 See the 30-second answer above.
 
 ### Q2. What is lexical scope and how is it related?
+
 Lexical scope means a function's accessible variables are determined by **where it is written** in the code. A closure is what makes that possible even after the function is passed around or returned: the function carries a link to its lexical environment.
 
 ### Q3. Is every function a closure?
+
 Technically yes, every function keeps a reference to its outer environment. But we usually only call it a closure when it **uses variables from an outer function and is used outside of / after that function's execution** (returned, passed as a callback, stored).
 
 ### Q4. What are practical uses of closures?
+
 - **Data privacy / encapsulation** (module pattern, counters)
 - **Function factories** (`multiplier(2)`)
 - **Callbacks and event handlers** that remember state
@@ -50,6 +54,7 @@ Technically yes, every function keeps a reference to its outer environment. But 
 - **React hooks** (state is kept via closures)
 
 ### Q5. Do closures copy values or reference variables?
+
 They hold a **reference to the variable**, not a snapshot. If the variable changes later, the closure sees the new value.
 
 ```js
@@ -63,6 +68,7 @@ make()(); // 2
 ```
 
 ### Q6. What are the downsides of closures?
+
 **Memory.** Variables referenced by a closure can't be garbage collected while the closure is reachable. Big objects captured by long-lived closures (event listeners never removed, timers never cleared) can leak memory. Fix: remove listeners, clear timers, set references to `null` when finished.
 
 ### Q7. Explain the `var` + `setTimeout` loop problem and fix it.
@@ -90,6 +96,7 @@ for (var i = 0; i < 3; i++) setTimeout(console.log, 100, i);
 ```
 
 ### Q8. How would you create private variables in JavaScript?
+
 Using a closure (module pattern):
 
 ```js
@@ -107,13 +114,13 @@ function createBankAccount(initial) {
       balance -= amount;
       return balance;
     },
-    getBalance: () => balance
+    getBalance: () => balance,
   };
 }
 
 const acc = createBankAccount(100);
-acc.deposit(50);          // 150
-acc.balance;              // undefined (private)
+acc.deposit(50); // 150
+acc.balance; // undefined (private)
 ```
 
 (Modern alternative: class private fields `#balance`.)
@@ -138,7 +145,7 @@ function once(fn) {
 
 ```js
 function debounce(fn, delay) {
-  let timerId;                         // remembered by the closure
+  let timerId; // remembered by the closure
   return function (...args) {
     clearTimeout(timerId);
     timerId = setTimeout(() => fn.apply(this, args), delay);
@@ -175,6 +182,7 @@ function trackCalls(fn) {
 ## 4. Output prediction questions
 
 **Q1**
+
 ```js
 function outer() {
   let a = 1;
@@ -192,30 +200,37 @@ fn2();
 ```
 
 **Q2**
+
 ```js
 var funcs = [];
 for (var i = 0; i < 3; i++) {
-  funcs.push(function () { return i; });
+  funcs.push(function () {
+    return i;
+  });
 }
 console.log(funcs[0](), funcs[1](), funcs[2]());
 ```
 
 **Q3**
+
 ```js
 var funcs = [];
 for (let i = 0; i < 3; i++) {
-  funcs.push(function () { return i; });
+  funcs.push(function () {
+    return i;
+  });
 }
 console.log(funcs[0](), funcs[1](), funcs[2]());
 ```
 
 **Q4**
+
 ```js
 function counter() {
   let c = 0;
   return {
     inc: () => ++c,
-    get: () => c
+    get: () => c,
   };
 }
 const a = counter();
@@ -227,6 +242,7 @@ console.log(a.get(), b.get());
 ```
 
 **Q5**
+
 ```js
 let x = "global";
 function show() {
@@ -250,7 +266,7 @@ run();
 ## 6. Tips for the interview
 
 - Start with the **definition in one sentence**, then give a **small example**. Don't ramble.
-- Always mention **lexical scope**: it shows you understand *why* closures work.
+- Always mention **lexical scope**: it shows you understand _why_ closures work.
 - Mention **one real use** from your own work (for LearningHub: debounce on search, a "mark complete" counter, a once-only init).
 - Mention the **memory** downside to show depth.
 - If asked to code, **talk while you code**: "this `count` is captured by the returned function...".
