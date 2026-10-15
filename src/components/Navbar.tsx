@@ -52,6 +52,7 @@ const navLinks = [
   { name: "DSA", href: "/dsa", icon: ListTree },
   { name: "Top30JS", href: "/top30js", icon: Code2 },
   { name: "Interview", href: "/interview", icon: Code2 },
+  { name: "Day1-7", href: "/day", icon: Code2 },
 ];
 
 const Navbar = () => {
