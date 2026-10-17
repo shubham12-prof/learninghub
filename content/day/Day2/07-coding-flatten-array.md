@@ -8,10 +8,10 @@
 Write `flatten(arr)` that turns a nested array into a single-level array, keeping the order.
 
 ```js
-flatten([1, [2, [3, [4]], 5]]);   // [1, 2, 3, 4, 5]
-flatten([]);                      // []
-flatten([[], [[]]]);              // []
-flatten([1, [2, 3]]);             // [1, 2, 3]
+flatten([1, [2, [3, [4]], 5]]); // [1, 2, 3, 4, 5]
+flatten([]); // []
+flatten([[], [[]]]); // []
+flatten([1, [2, 3]]); // [1, 2, 3]
 ```
 
 Common follow-up: **`flatten(arr, depth)`** which only flattens `depth` levels.
@@ -22,7 +22,7 @@ Common follow-up: **`flatten(arr, depth)`** which only flattens `depth` levels.
 - Detect arrays with **`Array.isArray(x)`** (not `typeof x === "object"`, because `null` and plain objects are objects too).
 - The output has **n** items, where n = total number of non-array elements, so the best possible time is **O(n)**.
 
-Ask the interviewer: *"Can I use `Array.prototype.flat`? How deep can the nesting be? Should I flatten a specific depth?"*
+Ask the interviewer: _"Can I use `Array.prototype.flat`? How deep can the nesting be? Should I flatten a specific depth?"_
 
 ## 3. Solutions
 
@@ -45,7 +45,7 @@ function flatten(arr) {
 
   for (const item of arr) {
     if (Array.isArray(item)) {
-      result.push(...flatten(item));   // flatten the inner array, then add its items
+      result.push(...flatten(item)); // flatten the inner array, then add its items
     } else {
       result.push(item);
     }
@@ -68,7 +68,7 @@ flatten([1, [2, [3]]])
   -> [1, 2, 3]
 ```
 
-- Time: **O(n)** (roughly; the repeated spreading copies items once per nesting level, so worst case is O(n * depth)) | Space: **O(n + depth)** for the recursion
+- Time: **O(n)** (roughly; the repeated spreading copies items once per nesting level, so worst case is O(n \* depth)) | Space: **O(n + depth)** for the recursion
 
 ### Solution 2b: Recursion with an accumulator (avoids repeated copying)
 
@@ -76,7 +76,7 @@ flatten([1, [2, [3]]])
 function flatten(arr, result = []) {
   for (const item of arr) {
     if (Array.isArray(item)) {
-      flatten(item, result);       // push into the SAME array
+      flatten(item, result); // push into the SAME array
     } else {
       result.push(item);
     }
@@ -93,30 +93,30 @@ function flatten(arr, result = []) {
 const flatten = (arr) =>
   arr.reduce(
     (acc, item) => acc.concat(Array.isArray(item) ? flatten(item) : item),
-    []
+    [],
   );
 ```
 
-- Time: **O(n * depth)** (each `concat` copies) | Space: **O(n)**
+- Time: **O(n \* depth)** (each `concat` copies) | Space: **O(n)**
 - Elegant, but less efficient than 2b.
 
 ### Solution 4: Iterative with a stack (no recursion)
 
 ```js
 function flatten(arr) {
-  const stack = [...arr];     // copy so we don't mutate the input
+  const stack = [...arr]; // copy so we don't mutate the input
   const result = [];
 
   while (stack.length) {
-    const item = stack.pop();           // take from the END
+    const item = stack.pop(); // take from the END
     if (Array.isArray(item)) {
-      stack.push(...item);              // put the inner items back on the stack
+      stack.push(...item); // put the inner items back on the stack
     } else {
       result.push(item);
     }
   }
 
-  return result.reverse();              // we popped from the end, so reverse at the end
+  return result.reverse(); // we popped from the end, so reverse at the end
 }
 ```
 
@@ -171,23 +171,23 @@ It breaks if any string contains `[`, `]`, or if there are `undefined`s/function
 
 ## 4. Edge cases to mention
 
-| Input | Expected | Notes |
-|---|---|---|
-| `[]` | `[]` | Empty |
-| `[[], [[]]]` | `[]` | Only empty arrays |
-| `[1, null, [undefined]]` | `[1, null, undefined]` | `null` / `undefined` are values, **not** arrays |
-| `[1, {a: [2]}]` | `[1, {a: [2]}]` | Objects are **not** flattened (only arrays are) |
-| `["ab", ["cd"]]` | `["ab", "cd"]` | Strings are **not** split into characters |
-| Sparse array `[1, , 3]` | `flat()` removes holes; `for...of` sees `undefined` | Use `forEach` (skips holes) to match `flat` |
-| Very deep nesting | Recursion can throw `RangeError` | Use the iterative version |
-| Don't mutate the input | Always build a new array | `arr.pop()` on the original would destroy it |
+| Input                    | Expected                                            | Notes                                           |
+| ------------------------ | --------------------------------------------------- | ----------------------------------------------- |
+| `[]`                     | `[]`                                                | Empty                                           |
+| `[[], [[]]]`             | `[]`                                                | Only empty arrays                               |
+| `[1, null, [undefined]]` | `[1, null, undefined]`                              | `null` / `undefined` are values, **not** arrays |
+| `[1, {a: [2]}]`          | `[1, {a: [2]}]`                                     | Objects are **not** flattened (only arrays are) |
+| `["ab", ["cd"]]`         | `["ab", "cd"]`                                      | Strings are **not** split into characters       |
+| Sparse array `[1, , 3]`  | `flat()` removes holes; `for...of` sees `undefined` | Use `forEach` (skips holes) to match `flat`     |
+| Very deep nesting        | Recursion can throw `RangeError`                    | Use the iterative version                       |
+| Don't mutate the input   | Always build a new array                            | `arr.pop()` on the original would destroy it    |
 
 Sparse-array demo:
 
 ```js
 const sparse = [1, , 3];
-sparse.flat();            // [1, 3]            holes are removed
-[...sparse];              // [1, undefined, 3] spread / for...of turn holes into undefined
+sparse.flat(); // [1, 3]            holes are removed
+[...sparse]; // [1, undefined, 3] spread / for...of turn holes into undefined
 ```
 
 ## 5. Bonus: flatten an **object**
@@ -261,8 +261,8 @@ function maxDepth(arr) {
   }
   return max;
 }
-maxDepth([1, [2, [3]]]);   // 3
-maxDepth([]);              // 1
+maxDepth([1, [2, [3]]]); // 3
+maxDepth([]); // 1
 
 // 5. Chunk
 function chunk(arr, size) {
@@ -275,7 +275,8 @@ chunk([1, 2, 3, 4, 5], 2); // [[1, 2], [3, 4], [5]]
 // 6. Polyfill
 Array.prototype.myFlat = function (depth = 1) {
   const result = [];
-  this.forEach((item) => {                         // forEach skips holes, like the real flat
+  this.forEach((item) => {
+    // forEach skips holes, like the real flat
     if (Array.isArray(item) && depth > 0) {
       result.push(...item.myFlat(depth - 1));
     } else {

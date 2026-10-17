@@ -8,17 +8,17 @@ A **Promise** is an object that represents a value that **isn't available yet bu
 
 A promise is always in one of three states:
 
-| State | Meaning | Can change? |
-|---|---|---|
-| **pending** | Still waiting | Yes, to fulfilled or rejected |
-| **fulfilled** | Finished successfully, has a value | No |
-| **rejected** | Failed, has a reason (usually an `Error`) | No |
+| State         | Meaning                                   | Can change?                   |
+| ------------- | ----------------------------------------- | ----------------------------- |
+| **pending**   | Still waiting                             | Yes, to fulfilled or rejected |
+| **fulfilled** | Finished successfully, has a value        | No                            |
+| **rejected**  | Failed, has a reason (usually an `Error`) | No                            |
 
 Once a promise is **settled** (fulfilled or rejected) it **never changes again**. Calling `resolve()` twice, or `resolve()` then `reject()`, does nothing the second time.
 
 ## 2. Analogy
 
-Ordering food at a restaurant and getting a **buzzer**. The buzzer isn't your food, it is a *promise* of food. While you wait it's **pending**. Eventually it buzzes (**fulfilled**: pick up your food) or the kitchen says "sorry, we ran out" (**rejected**). Meanwhile you are free to do other things (JavaScript keeps running other code).
+Ordering food at a restaurant and getting a **buzzer**. The buzzer isn't your food, it is a _promise_ of food. While you wait it's **pending**. Eventually it buzzes (**fulfilled**: pick up your food) or the kitchen says "sorry, we ran out" (**rejected**). Meanwhile you are free to do other things (JavaScript keeps running other code).
 
 ## 3. Creating a promise
 
@@ -27,7 +27,7 @@ const promise = new Promise((resolve, reject) => {
   // do some work...
   const ok = true;
   if (ok) {
-    resolve("It worked!");        // fulfil with a value
+    resolve("It worked!"); // fulfil with a value
   } else {
     reject(new Error("It failed")); // reject with a reason
   }
@@ -48,9 +48,9 @@ sleep(500).then(() => console.log("500ms later"));
 
 ```js
 getUser(1)
-  .then((user) => console.log("Got", user.name))   // runs on success
+  .then((user) => console.log("Got", user.name)) // runs on success
   .catch((err) => console.log("Failed:", err.message)) // runs on failure
-  .finally(() => console.log("Done"));              // runs either way
+  .finally(() => console.log("Done")); // runs either way
 ```
 
 A fake API to practise with:
@@ -65,39 +65,41 @@ function getUser(id) {
   });
 }
 
-getUser(1).then((u) => console.log(u));            // { id: 1, name: 'User 1' }
-getUser(0).catch((e) => console.log(e.message));   // Invalid id
+getUser(1).then((u) => console.log(u)); // { id: 1, name: 'User 1' }
+getUser(0).catch((e) => console.log(e.message)); // Invalid id
 ```
 
 ## 5. Chaining: the rules you must know
 
 `.then()` **always returns a new promise**, so you can chain. What the next link receives depends on what the previous callback does:
 
-| The callback... | The next promise... |
-|---|---|
-| returns a **plain value** | fulfils with that value |
-| returns a **promise** | waits for it, then fulfils/rejects like it |
-| **throws** an error | rejects with that error |
-| returns nothing | fulfils with `undefined` |
+| The callback...           | The next promise...                        |
+| ------------------------- | ------------------------------------------ |
+| returns a **plain value** | fulfils with that value                    |
+| returns a **promise**     | waits for it, then fulfils/rejects like it |
+| **throws** an error       | rejects with that error                    |
+| returns nothing           | fulfils with `undefined`                   |
 
 ```js
 Promise.resolve(1)
-  .then((n) => n + 1)                 // 2
+  .then((n) => n + 1) // 2
   .then((n) => sleep(100).then(() => n * 10)) // returns a promise -> waits -> 20
-  .then((n) => console.log(n));       // 20
+  .then((n) => console.log(n)); // 20
 ```
 
 ### Errors skip ahead to the nearest `.catch`
 
 ```js
 Promise.resolve("start")
-  .then(() => { throw new Error("boom"); })
-  .then(() => console.log("skipped"))        // never runs
-  .catch((err) => {
-    console.log("caught:", err.message);     // caught: boom
-    return "recovered";                      // returning a value RECOVERS the chain
+  .then(() => {
+    throw new Error("boom");
   })
-  .then((v) => console.log(v));              // recovered
+  .then(() => console.log("skipped")) // never runs
+  .catch((err) => {
+    console.log("caught:", err.message); // caught: boom
+    return "recovered"; // returning a value RECOVERS the chain
+  })
+  .then((v) => console.log(v)); // recovered
 ```
 
 ### `.finally()`
@@ -133,7 +135,7 @@ getUser(1)
   .then((user) => getPosts(user.id))
   .then((posts) => getComments(posts[0].id))
   .then((comments) => console.log(comments))
-  .catch((err) => console.error(err));   // ONE catch handles any failure above
+  .catch((err) => console.error(err)); // ONE catch handles any failure above
 ```
 
 Wrapping an old callback API (**promisify**):
@@ -151,14 +153,14 @@ function readFilePromise(path) {
 
 ## 7. Static helpers (quick overview)
 
-| Method | Resolves when | Rejects when |
-|---|---|---|
-| `Promise.resolve(x)` | immediately with `x` | never |
-| `Promise.reject(e)` | never | immediately with `e` |
-| `Promise.all([...])` | **all** fulfil (array of values) | **any** rejects (first rejection) |
-| `Promise.allSettled([...])` | **all** settle (array of result objects) | never |
-| `Promise.race([...])` | **first** to settle fulfils | first to settle rejects |
-| `Promise.any([...])` | **first fulfilment** | **all** reject (`AggregateError`) |
+| Method                      | Resolves when                            | Rejects when                      |
+| --------------------------- | ---------------------------------------- | --------------------------------- |
+| `Promise.resolve(x)`        | immediately with `x`                     | never                             |
+| `Promise.reject(e)`         | never                                    | immediately with `e`              |
+| `Promise.all([...])`        | **all** fulfil (array of values)         | **any** rejects (first rejection) |
+| `Promise.allSettled([...])` | **all** settle (array of result objects) | never                             |
+| `Promise.race([...])`       | **first** to settle fulfils              | first to settle rejects           |
+| `Promise.any([...])`        | **first fulfilment**                     | **all** reject (`AggregateError`) |
 
 Details and a hand-written `Promise.all` are in `08-interview-promise-all.md`.
 
@@ -167,15 +169,19 @@ Details and a hand-written `Promise.all` are in `08-interview-promise-all.md`.
 1. **Forgetting to `return` inside `.then`**: the next link gets `undefined` and doesn't wait.
    ```js
    getUser(1)
-     .then((u) => { getPosts(u.id); })   // BUG: no return, chain doesn't wait
+     .then((u) => {
+       getPosts(u.id);
+     }) // BUG: no return, chain doesn't wait
      .then((posts) => console.log(posts)); // undefined
    ```
 2. **Nesting `.then` inside `.then`** instead of chaining (callback hell again).
-3. **No `.catch`**: the rejection becomes an *unhandled rejection* (crashes Node, logs an error in browsers).
+3. **No `.catch`**: the rejection becomes an _unhandled rejection_ (crashes Node, logs an error in browsers).
 4. **The `new Promise` anti-pattern**: wrapping something that already returns a promise.
    ```js
    // Bad
-   const p = new Promise((resolve, reject) => fetch(url).then(resolve).catch(reject));
+   const p = new Promise((resolve, reject) =>
+     fetch(url).then(resolve).catch(reject),
+   );
    // Good
    const p = fetch(url);
    ```
@@ -185,6 +191,7 @@ Details and a hand-written `Promise.all` are in `08-interview-promise-all.md`.
 ## 9. Predict the output
 
 **Q1**
+
 ```js
 const p = new Promise((resolve) => {
   console.log("A");
@@ -196,16 +203,20 @@ console.log("D");
 ```
 
 **Q2**
+
 ```js
 Promise.resolve(1)
   .then((v) => v + 1)
-  .then(() => { throw new Error("oops"); })
+  .then(() => {
+    throw new Error("oops");
+  })
   .then(() => console.log("skipped"))
   .catch((e) => console.log(e.message))
   .then(() => console.log("after catch"));
 ```
 
 **Q3**
+
 ```js
 Promise.resolve(1)
   .then(2)
@@ -213,6 +224,7 @@ Promise.resolve(1)
 ```
 
 **Q4**
+
 ```js
 const p = Promise.reject(new Error("fail"));
 p.catch(() => console.log("caught"));
@@ -220,6 +232,7 @@ p.then(() => console.log("then")).catch(() => console.log("caught2"));
 ```
 
 **Q5**
+
 ```js
 Promise.resolve("x")
   .finally(() => "ignored")

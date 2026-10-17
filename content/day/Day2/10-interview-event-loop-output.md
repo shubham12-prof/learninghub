@@ -5,13 +5,14 @@
 
 ## 1. The method (use it on every puzzle)
 
-1. **Run all synchronous code** top to bottom. While doing so, note what each async call *queues*:
+1. **Run all synchronous code** top to bottom. While doing so, note what each async call _queues_:
    - `setTimeout` / `setInterval` / events -> **macrotask list** (ordered by delay, then by call order)
    - `.then` / `.catch` / `.finally` / `queueMicrotask` / code after `await` -> **microtask list** (FIFO)
 2. When the stack is empty, **drain the whole microtask list**. New microtasks created while draining go to the **end** of the list and also run in this step.
 3. Take **one** macrotask, run it (then drain microtasks again). Repeat until both lists are empty.
 
 **Quick rules to remember**
+
 - The Promise **executor** runs synchronously. Only `.then` callbacks are async.
 - Code **before** the first `await` is synchronous; code **after** is a microtask.
 - All microtasks run **before** the next timer, even `setTimeout(fn, 0)`.
@@ -186,6 +187,7 @@ Sync: 1, 4. Microtask: 3. Macrotask: 2.
 Sync prints `sync`. Microtask `promise 1` queues `timeout 2` (a macrotask) and then `promise 2` runs as the next microtask. Macrotasks then run in order: `timeout 1` was queued first, `timeout 2` second.
 
 **P3:**
+
 ```
 script start
 async1 start
@@ -196,6 +198,7 @@ async1 end
 promise2
 setTimeout
 ```
+
 Sync: `script start`; `setTimeout` queued; `async1()` runs: `async1 start`, calls `async2()` -> `async2`, then `await` pauses `async1` (continuation queued as microtask #1); the `new Promise` executor logs `promise1` and queues `promise2` (microtask #2); `script end`. Microtasks in order: `async1 end`, then `promise2`. Then the macrotask: `setTimeout`.
 
 **P4:** `m3 m2 m1 T`
@@ -221,6 +224,7 @@ The chains interleave one step per tick: tick 1 -> A1, B1; tick 2 -> A2, B2; tic
 
 **P11:** `a1 b1 c1 sync b2 p1 a2 p2 p3`
 Sync: `a1`, `b1`, `c1`, then `sync`. Microtask queue order of events:
+
 1. `await c()` in `b` -> continuation (prints `b2`) queued first.
 2. `Promise.resolve().then(p1)` queued second.
 3. Tick: `b2` runs and `b` finishes, which resolves the promise that `a` is awaiting -> `a`'s continuation (`a2`) is queued **behind** `p1`.
@@ -233,15 +237,19 @@ Sync: `a1`, `b1`, `c1`, then `sync`. Microtask queue order of events:
 ## 4. Extra practice: write the output, then run it
 
 **E1**
+
 ```js
 console.log("A");
 setTimeout(() => console.log("B"), 0);
 setTimeout(() => console.log("C"), 0);
-Promise.resolve().then(() => console.log("D")).then(() => console.log("E"));
+Promise.resolve()
+  .then(() => console.log("D"))
+  .then(() => console.log("E"));
 console.log("F");
 ```
 
 **E2**
+
 ```js
 const p = new Promise((resolve) => {
   console.log(1);
@@ -254,6 +262,7 @@ console.log(5);
 ```
 
 **E3**
+
 ```js
 async function run() {
   console.log("start");
@@ -263,7 +272,9 @@ async function run() {
   console.log("end");
 }
 run();
-Promise.resolve().then(() => console.log("x")).then(() => console.log("y"));
+Promise.resolve()
+  .then(() => console.log("x"))
+  .then(() => console.log("y"));
 console.log("sync");
 ```
 

@@ -9,19 +9,19 @@ A **microtask** is a small callback that runs **right after the current code fin
 
 What creates microtasks:
 
-| Source | Example |
-|---|---|
-| Promise reactions | `.then()`, `.catch()`, `.finally()` callbacks |
-| `await` | the code **after** an `await` is a microtask continuation |
-| `queueMicrotask(fn)` | explicit microtask |
-| `MutationObserver` | DOM change observers (browser) |
+| Source               | Example                                                   |
+| -------------------- | --------------------------------------------------------- |
+| Promise reactions    | `.then()`, `.catch()`, `.finally()` callbacks             |
+| `await`              | the code **after** an `await` is a microtask continuation |
+| `queueMicrotask(fn)` | explicit microtask                                        |
+| `MutationObserver`   | DOM change observers (browser)                            |
 
-What does **not** create microtasks: `setTimeout`, `setInterval`, DOM events, `fetch` completion callbacks themselves (the *promise* `fetch` returns resolves via a macrotask-ish task, but your `.then` on it then runs as a microtask).
+What does **not** create microtasks: `setTimeout`, `setInterval`, DOM events, `fetch` completion callbacks themselves (the _promise_ `fetch` returns resolves via a macrotask-ish task, but your `.then` on it then runs as a microtask).
 
 ## 2. The rules
 
 1. Microtasks are processed in **FIFO order** (first queued, first run).
-2. The queue is drained **completely** before the next macrotask, *including microtasks added while draining*.
+2. The queue is drained **completely** before the next macrotask, _including microtasks added while draining_.
 3. A promise callback is queued **only when the promise is settled** (or immediately if it is already settled when `.then` is called).
 4. Each `.then` hop in a chain costs **one round** of the microtask queue (one "tick").
 
@@ -34,8 +34,12 @@ Think of microtasks as **"do this right after I finish what I'm doing"** sticky 
 ### 4.1 Two chains interleave
 
 ```js
-Promise.resolve().then(() => console.log(1)).then(() => console.log(2));
-Promise.resolve().then(() => console.log("a")).then(() => console.log("b"));
+Promise.resolve()
+  .then(() => console.log(1))
+  .then(() => console.log(2));
+Promise.resolve()
+  .then(() => console.log("a"))
+  .then(() => console.log("b"));
 // 1, a, 2, b
 ```
 
@@ -72,7 +76,7 @@ setTimeout(() => console.log("T"), 0);
 async function a() {
   console.log(1);
   await null;
-  console.log(2);   // runs as a microtask
+  console.log(2); // runs as a microtask
 }
 
 a();
@@ -82,6 +86,7 @@ console.log(4);
 ```
 
 Step by step:
+
 1. `a()` runs synchronously: logs `1`, hits `await` and **pauses**, queueing the continuation (microtask #1).
 2. `Promise.resolve().then(...)` queues microtask #2.
 3. `4` logs (sync).
@@ -129,8 +134,12 @@ Reading it: everything synchronous first (`script start`, `async1 start`, `async
 ### 4.6 Returning a promise from an `async` function costs extra ticks (advanced)
 
 ```js
-async function f1() { return Promise.resolve("x"); }  // returns a promise
-async function f2() { return "x"; }                    // returns a plain value
+async function f1() {
+  return Promise.resolve("x");
+} // returns a promise
+async function f2() {
+  return "x";
+} // returns a plain value
 
 f1().then(() => console.log("f1"));
 f2().then(() => console.log("f2"));
@@ -142,7 +151,7 @@ Promise.resolve()
 // f2, p1, p2, f1, p3, p4
 ```
 
-`f2` settles right away. `f1` returns a promise, and resolving a promise with another promise takes **2 extra ticks**, so it lands after `p2`. You don't need to memorise the numbers. The takeaway is: *returning a promise from an `async` function (or from a `.then`) is slower than returning a plain value.*
+`f2` settles right away. `f1` returns a promise, and resolving a promise with another promise takes **2 extra ticks**, so it lands after `p2`. You don't need to memorise the numbers. The takeaway is: _returning a promise from an `async` function (or from a `.then`) is slower than returning a plain value._
 
 ### 4.7 Node.js only: `process.nextTick`
 
@@ -160,10 +169,16 @@ The `nextTick` queue is drained **before** the promise microtask queue. It does 
 An error thrown inside a `.then` callback is **caught by the promise** and turns into a rejection (handled by `.catch`). An error thrown inside a `queueMicrotask` callback is **not** a promise rejection: it becomes an uncaught exception.
 
 ```js
-Promise.resolve().then(() => { throw new Error("A"); }).catch((e) => console.log("caught", e.message));
+Promise.resolve()
+  .then(() => {
+    throw new Error("A");
+  })
+  .catch((e) => console.log("caught", e.message));
 // caught A
 
-queueMicrotask(() => { throw new Error("B"); });
+queueMicrotask(() => {
+  throw new Error("B");
+});
 // Uncaught Error: B  (reported as an uncaught exception)
 ```
 
@@ -187,12 +202,18 @@ More practice in `10-interview-event-loop-output.md`.
 ## 8. Predict the output
 
 **Q1**
+
 ```js
-Promise.resolve().then(() => console.log(1)).then(() => console.log(2));
-Promise.resolve().then(() => console.log("a")).then(() => console.log("b"));
+Promise.resolve()
+  .then(() => console.log(1))
+  .then(() => console.log(2));
+Promise.resolve()
+  .then(() => console.log("a"))
+  .then(() => console.log("b"));
 ```
 
 **Q2**
+
 ```js
 Promise.resolve().then(() => console.log("then1"));
 queueMicrotask(() => console.log("qm"));
@@ -200,6 +221,7 @@ Promise.resolve().then(() => console.log("then2"));
 ```
 
 **Q3**
+
 ```js
 setTimeout(() => console.log("T"), 0);
 (function loop(n) {
@@ -213,6 +235,7 @@ setTimeout(() => console.log("T"), 0);
 ```
 
 **Q4**
+
 ```js
 async function f() {
   console.log(1);
@@ -225,6 +248,7 @@ console.log(4);
 ```
 
 **Q5**
+
 ```js
 new Promise((_, reject) => {
   throw new Error("boom");

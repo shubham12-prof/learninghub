@@ -10,13 +10,13 @@ The **runtime** (browser or Node.js) does the waiting **outside** the JavaScript
 
 ## 2. The pieces
 
-| Piece | What it is |
-|---|---|
-| **Call stack** | Where your functions run (see `Day 1/05-execution-context.md`). One at a time. |
-| **Web APIs / Node APIs** | Provided by the runtime, *not* JavaScript itself: `setTimeout`, `fetch`, DOM events, file I/O. They do the waiting in the background. |
-| **Macrotask queue** (task / callback queue) | Callbacks from timers, I/O, UI events (`setTimeout`, `setInterval`, clicks, `MessageChannel`, Node's `setImmediate`). |
-| **Microtask queue** | Promise callbacks (`.then/.catch/.finally`), `await` continuations, `queueMicrotask`, `MutationObserver`. |
-| **Event loop** | The loop that decides what runs next. |
+| Piece                                       | What it is                                                                                                                            |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| **Call stack**                              | Where your functions run (see `Day 1/05-execution-context.md`). One at a time.                                                        |
+| **Web APIs / Node APIs**                    | Provided by the runtime, _not_ JavaScript itself: `setTimeout`, `fetch`, DOM events, file I/O. They do the waiting in the background. |
+| **Macrotask queue** (task / callback queue) | Callbacks from timers, I/O, UI events (`setTimeout`, `setInterval`, clicks, `MessageChannel`, Node's `setImmediate`).                 |
+| **Microtask queue**                         | Promise callbacks (`.then/.catch/.finally`), `await` continuations, `queueMicrotask`, `MutationObserver`.                             |
+| **Event loop**                              | The loop that decides what runs next.                                                                                                 |
 
 ```
         ┌────────────────────────┐
@@ -42,15 +42,15 @@ The **runtime** (browser or Node.js) does the waiting **outside** the JavaScript
 ## 3. The algorithm (memorise this!)
 
 1. Run the current script / task until the **call stack is empty**. (The first task is your whole script.)
-2. Run **ALL microtasks**, one after another, until the microtask queue is **completely empty**. (Microtasks queued *by* microtasks also run now.)
-3. *(Browser only)* If it's time, **render** the page.
+2. Run **ALL microtasks**, one after another, until the microtask queue is **completely empty**. (Microtasks queued _by_ microtasks also run now.)
+3. _(Browser only)_ If it's time, **render** the page.
 4. Take **ONE macrotask** from the macrotask queue, run it, and **go back to step 2**.
 
-> **Golden rule:** after every macrotask, *all* microtasks run before the next macrotask. That is why promises "beat" `setTimeout(fn, 0)`.
+> **Golden rule:** after every macrotask, _all_ microtasks run before the next macrotask. That is why promises "beat" `setTimeout(fn, 0)`.
 
 ## 4. Analogy
 
-A **single chef** (call stack) in a kitchen with two order boxes. The chef finishes the dish in front of them, then checks the **VIP box** (microtasks) and clears *every* ticket in it, including new VIP tickets that appear while clearing. Only then does the chef take **one** ticket from the **regular box** (macrotasks), and then checks the VIP box again. The waiters (Web APIs) bring tickets to the boxes in the background.
+A **single chef** (call stack) in a kitchen with two order boxes. The chef finishes the dish in front of them, then checks the **VIP box** (microtasks) and clears _every_ ticket in it, including new VIP tickets that appear while clearing. Only then does the chef take **one** ticket from the **regular box** (macrotasks), and then checks the VIP box again. The waiters (Web APIs) bring tickets to the boxes in the background.
 
 ## 5. Examples
 
@@ -69,6 +69,7 @@ console.log("D");
 Output: `A`, `D`, `C`, `B`
 
 Walkthrough:
+
 1. `A` logs (sync).
 2. `setTimeout` hands the callback to the timer API -> it will be queued as a **macrotask**.
 3. The promise `.then` callback is queued as a **microtask**.
@@ -78,7 +79,7 @@ Walkthrough:
 
 ### 5.2 `setTimeout(fn, 0)` does NOT mean "now"
 
-`0` means "as soon as possible *after* the current code and all microtasks finish". Browsers also clamp nested timers to at least ~4 ms. A timer's delay is a **minimum**, never a guarantee.
+`0` means "as soon as possible _after_ the current code and all microtasks finish". Browsers also clamp nested timers to at least ~4 ms. A timer's delay is a **minimum**, never a guarantee.
 
 ### 5.3 Timers are ordered by their delay
 
@@ -91,13 +92,13 @@ setTimeout(() => console.log("c"), 5);
 
 ### 5.4 Blocking the loop
 
-Long synchronous work stops *everything*, including timers and (in a browser) painting and clicks:
+Long synchronous work stops _everything_, including timers and (in a browser) painting and clicks:
 
 ```js
 setTimeout(() => console.log("timer"), 0);
 
 const start = Date.now();
-while (Date.now() - start < 50) {}   // busy-wait for 50ms: nothing else can run
+while (Date.now() - start < 50) {} // busy-wait for 50ms: nothing else can run
 
 console.log("loop done");
 // loop done
@@ -110,10 +111,10 @@ The timer was ready after ~0ms, but it had to wait until the stack was free. Thi
 
 ```js
 function loop() {
-  Promise.resolve().then(loop);   // each microtask queues another microtask
+  Promise.resolve().then(loop); // each microtask queues another microtask
 }
 loop();
-setTimeout(() => console.log("never"), 0);  // never runs: the microtask queue is never empty
+setTimeout(() => console.log("never"), 0); // never runs: the microtask queue is never empty
 ```
 
 Because step 2 only finishes when the microtask queue is **empty**, an endless microtask chain freezes the page. Endless `setTimeout` recursion does **not** do this because the loop can handle other tasks in between.
@@ -143,6 +144,7 @@ Because step 2 only finishes when the microtask queue is **empty**, an endless m
 ## 8. Predict the output
 
 **Q1**
+
 ```js
 console.log("A");
 setTimeout(() => console.log("B"), 0);
@@ -151,6 +153,7 @@ console.log("D");
 ```
 
 **Q2**
+
 ```js
 setTimeout(() => console.log("a"), 10);
 setTimeout(() => console.log("b"), 0);
@@ -158,6 +161,7 @@ setTimeout(() => console.log("c"), 5);
 ```
 
 **Q3**
+
 ```js
 setTimeout(() => console.log("timer"), 0);
 const start = Date.now();
@@ -166,13 +170,17 @@ console.log("loop done");
 ```
 
 **Q4** (conceptual, don't run): what happens here?
+
 ```js
-function loop() { Promise.resolve().then(loop); }
+function loop() {
+  Promise.resolve().then(loop);
+}
 loop();
 setTimeout(() => console.log("never"), 0);
 ```
 
 **Q5**
+
 ```js
 console.log(1);
 setTimeout(() => console.log(2), 0);

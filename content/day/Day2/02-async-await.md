@@ -4,7 +4,7 @@
 
 ## 1. What is `async/await`?
 
-`async/await` is **syntax on top of promises** that lets asynchronous code *read* like normal top-to-bottom code. It does not change how promises work underneath.
+`async/await` is **syntax on top of promises** that lets asynchronous code _read_ like normal top-to-bottom code. It does not change how promises work underneath.
 
 Two rules:
 
@@ -15,8 +15,8 @@ Two rules:
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function getGreeting() {
-  await sleep(100);        // function pauses here, other code keeps running
-  return "Hello";          // becomes the promise's value
+  await sleep(100); // function pauses here, other code keeps running
+  return "Hello"; // becomes the promise's value
 }
 
 getGreeting().then((msg) => console.log(msg)); // Hello
@@ -24,7 +24,7 @@ getGreeting().then((msg) => console.log(msg)); // Hello
 
 ## 2. Analogy
 
-Reading a recipe: "put the cake in the oven, **wait** until it's baked, then add frosting". *You* wait at that step, but the rest of the kitchen keeps working (the event loop is free to do other things). `await` is that "wait here" step for **one function**, not for the whole kitchen.
+Reading a recipe: "put the cake in the oven, **wait** until it's baked, then add frosting". _You_ wait at that step, but the rest of the kitchen keeps working (the event loop is free to do other things). `await` is that "wait here" step for **one function**, not for the whole kitchen.
 
 ## 3. Promises vs async/await (same thing, two styles)
 
@@ -77,9 +77,9 @@ async function loadData() {
     return await res.json();
   } catch (err) {
     console.error("Failed:", err.message);
-    return null;                      // recover with a fallback
+    return null; // recover with a fallback
   } finally {
-    hideSpinner();                    // always runs
+    hideSpinner(); // always runs
   }
 }
 ```
@@ -87,7 +87,9 @@ async function loadData() {
 An `async` function that throws (and doesn't catch) returns a **rejected promise**, so the caller can use `try/catch` with `await`, or `.catch()`:
 
 ```js
-async function fail() { throw new Error("nope"); }
+async function fail() {
+  throw new Error("nope");
+}
 
 fail().catch((e) => console.log(e.message)); // nope
 ```
@@ -103,7 +105,7 @@ async function sequential() {
   const a = await task("A", 100); // waits 100ms
   const b = await task("B", 100); // waits another 100ms
   const c = await task("C", 100); // waits another 100ms
-  return [a, b, c];               // total ~300ms
+  return [a, b, c]; // total ~300ms
 }
 ```
 
@@ -116,7 +118,7 @@ async function parallel() {
     task("B", 100),
     task("C", 100),
   ]);
-  return [a, b, c];               // total ~100ms
+  return [a, b, c]; // total ~100ms
 }
 ```
 
@@ -132,11 +134,11 @@ A middle path (start early, await later):
 
 ```js
 async function startEarly() {
-  const pA = task("A", 100);      // started, not awaited yet
-  const pB = task("B", 100);      // started too
+  const pA = task("A", 100); // started, not awaited yet
+  const pB = task("B", 100); // started too
   const a = await pA;
   const b = await pB;
-  return [a, b];                  // ~100ms
+  return [a, b]; // ~100ms
 }
 ```
 
@@ -146,11 +148,11 @@ async function startEarly() {
 const ids = [1, 2, 3];
 ```
 
-| Goal | Code | Runs |
-|---|---|---|
-| One after another | `for (const id of ids) { await getUser(id); }` | **sequential** |
-| All at once | `await Promise.all(ids.map((id) => getUser(id)))` | **parallel** |
-| **BROKEN** | `ids.forEach(async (id) => { await getUser(id); })` | fires them all and **doesn't wait** |
+| Goal              | Code                                                | Runs                                |
+| ----------------- | --------------------------------------------------- | ----------------------------------- |
+| One after another | `for (const id of ids) { await getUser(id); }`      | **sequential**                      |
+| All at once       | `await Promise.all(ids.map((id) => getUser(id)))`   | **parallel**                        |
+| **BROKEN**        | `ids.forEach(async (id) => { await getUser(id); })` | fires them all and **doesn't wait** |
 
 ### The `forEach` trap
 
@@ -180,7 +182,10 @@ Fix: use `for...of` (sequential) or `await Promise.all(arr.map(...))` (parallel)
   ```js
   const fn = async () => {};
   const obj = { async method() {} };
-  (async () => { await sleep(10); console.log("IIFE"); })();
+  (async () => {
+    await sleep(10);
+    console.log("IIFE");
+  })();
   ```
 - **Top-level await** works in ES modules (`<script type="module">`, `.mjs`):
   ```js
@@ -189,21 +194,30 @@ Fix: use `for...of` (sequential) or `await Promise.all(arr.map(...))` (parallel)
 - Code **before** the first `await` runs **synchronously**:
   ```js
   async function a() {
-    console.log("sync part");  // runs immediately when a() is called
+    console.log("sync part"); // runs immediately when a() is called
     await null;
     console.log("after await"); // runs later (microtask)
   }
   ```
 - `return await` vs `return` matters **only inside try/catch**:
+
   ```js
   async function withAwait() {
-    try { return await Promise.reject(new Error("x")); }   // caught below
-    catch (e) { return "caught"; }
+    try {
+      return await Promise.reject(new Error("x"));
+    } catch (e) {
+      // caught below
+      return "caught";
+    }
   }
 
   async function withoutAwait() {
-    try { return Promise.reject(new Error("x")); }          // NOT caught: returned before it rejects
-    catch (e) { return "caught"; }
+    try {
+      return Promise.reject(new Error("x"));
+    } catch (e) {
+      // NOT caught: returned before it rejects
+      return "caught";
+    }
   }
   ```
 
@@ -211,8 +225,8 @@ Fix: use `for...of` (sequential) or `await Promise.all(arr.map(...))` (parallel)
 
 1. **Forgetting `await`**: you get a pending `Promise` object instead of the value.
    ```js
-   const user = getUser(1);       // Promise, not a user
-   console.log(user.name);        // undefined
+   const user = getUser(1); // Promise, not a user
+   console.log(user.name); // undefined
    ```
 2. **Awaiting in a loop when tasks are independent** (needlessly slow). Use `Promise.all`.
 3. **`forEach` with `async`** (see section 6).
@@ -224,12 +238,16 @@ Fix: use `for...of` (sequential) or `await Promise.all(arr.map(...))` (parallel)
 ## 9. Predict the output
 
 **Q1**
+
 ```js
-async function f() { return 1; }
+async function f() {
+  return 1;
+}
 console.log(f() instanceof Promise);
 ```
 
 **Q2**
+
 ```js
 async function a() {
   console.log(1);
@@ -241,24 +259,35 @@ console.log(3);
 ```
 
 **Q3**
+
 ```js
 async function f() {
-  try { return await Promise.reject(new Error("x")); }
-  catch (e) { return "caught"; }
+  try {
+    return await Promise.reject(new Error("x"));
+  } catch (e) {
+    return "caught";
+  }
 }
 f().then(console.log);
 ```
 
 **Q4**
+
 ```js
 async function g() {
-  try { return Promise.reject(new Error("x")); }
-  catch (e) { return "caught"; }
+  try {
+    return Promise.reject(new Error("x"));
+  } catch (e) {
+    return "caught";
+  }
 }
-g().then(console.log).catch((e) => console.log("outer", e.message));
+g()
+  .then(console.log)
+  .catch((e) => console.log("outer", e.message));
 ```
 
 **Q5**
+
 ```js
 async function run() {
   [1, 2, 3].forEach(async (n) => {
@@ -280,7 +309,7 @@ run();
 
 ## Recap
 
-- `async` function = returns a promise. `await` = pause *this function* until a promise settles.
+- `async` function = returns a promise. `await` = pause _this function_ until a promise settles.
 - Use `try/catch/finally` for errors (and check `res.ok` with `fetch`).
 - Independent tasks -> `Promise.all` (parallel). Dependent tasks -> `await` one after another.
 - Never use `forEach` with `await`; use `for...of` or `Promise.all(map)`.

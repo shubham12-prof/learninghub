@@ -9,17 +9,18 @@
 
 ## 2. The four combinators side by side
 
-| | **`Promise.all`** | **`Promise.allSettled`** | **`Promise.race`** | **`Promise.any`** |
-|---|---|---|---|---|
-| Fulfils when | **all** fulfil | **all** settle | the **first** settles *as fulfilled* | the **first** fulfils |
-| Fulfilment value | array of values | array of `{status, value/reason}` | that first value | that first value |
-| Rejects when | **any** rejects (first) | **never** | the first settles *as rejected* | **all** reject (`AggregateError`) |
-| Empty `[]` | fulfils with `[]` | fulfils with `[]` | **never settles** (forever pending) | rejects (`AggregateError`) |
-| Typical use | load all data needed for a page | "run everything, report successes and failures" | timeouts, first response | fastest of several mirrors/servers |
+|                  | **`Promise.all`**               | **`Promise.allSettled`**                        | **`Promise.race`**                   | **`Promise.any`**                  |
+| ---------------- | ------------------------------- | ----------------------------------------------- | ------------------------------------ | ---------------------------------- |
+| Fulfils when     | **all** fulfil                  | **all** settle                                  | the **first** settles _as fulfilled_ | the **first** fulfils              |
+| Fulfilment value | array of values                 | array of `{status, value/reason}`               | that first value                     | that first value                   |
+| Rejects when     | **any** rejects (first)         | **never**                                       | the first settles _as rejected_      | **all** reject (`AggregateError`)  |
+| Empty `[]`       | fulfils with `[]`               | fulfils with `[]`                               | **never settles** (forever pending)  | rejects (`AggregateError`)         |
+| Typical use      | load all data needed for a page | "run everything, report successes and failures" | timeouts, first response             | fastest of several mirrors/servers |
 
 ## 3. Analogy
 
 Four friends going to the cinema:
+
 - **`all`**: "We only go if **everybody** can come. If anyone cancels, we cancel immediately."
 - **`allSettled`**: "Everyone replies yes or no. We wait for **every reply**, then decide."
 - **`race`**: "Whoever **answers first**, yes or no, decides for the group."
@@ -32,7 +33,7 @@ Helper used in all the examples:
 ```js
 const sleep = (ms, value, fail = false) =>
   new Promise((resolve, reject) =>
-    setTimeout(() => (fail ? reject(new Error(value)) : resolve(value)), ms)
+    setTimeout(() => (fail ? reject(new Error(value)) : resolve(value)), ms),
   );
 ```
 
@@ -57,7 +58,10 @@ The rejection arrives after 10 ms; `Promise.all` does **not wait** for the 20 ms
 ### 4.3 `Promise.allSettled`
 
 ```js
-const results = await Promise.allSettled([sleep(10, "ok"), sleep(5, "bad", true)]);
+const results = await Promise.allSettled([
+  sleep(10, "ok"),
+  sleep(5, "bad", true),
+]);
 
 console.log(results.map((r) => r.status));
 // [ 'fulfilled', 'rejected' ]
@@ -74,11 +78,13 @@ for (const r of results) {
 
 ```js
 const timeout = (ms) =>
-  new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), ms));
+  new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("Timeout")), ms),
+  );
 
 Promise.race([fetch("/slow-api"), timeout(3000)])
   .then((res) => console.log("got response"))
-  .catch((err) => console.log(err.message));    // "Timeout" if the fetch takes > 3s
+  .catch((err) => console.log(err.message)); // "Timeout" if the fetch takes > 3s
 ```
 
 ### 4.5 `Promise.any`: the first success
@@ -87,8 +93,11 @@ Promise.race([fetch("/slow-api"), timeout(3000)])
 Promise.any([sleep(10, "e1", true), sleep(20, "ok")]).then(console.log);
 // ok
 
-Promise.any([Promise.reject(new Error("a")), Promise.reject(new Error("b"))]).catch((e) => {
-  console.log(e.constructor.name);          // AggregateError
+Promise.any([
+  Promise.reject(new Error("a")),
+  Promise.reject(new Error("b")),
+]).catch((e) => {
+  console.log(e.constructor.name); // AggregateError
   console.log(e.errors.map((x) => x.message)); // [ 'a', 'b' ]
 });
 ```
@@ -109,23 +118,25 @@ await Promise.all([100, 100, 100].map((ms) => sleep(ms)));
 function promiseAll(iterable) {
   return new Promise((resolve, reject) => {
     const items = Array.from(iterable);
-    const results = new Array(items.length);   // keep results by INDEX to preserve order
+    const results = new Array(items.length); // keep results by INDEX to preserve order
     let remaining = items.length;
 
-    if (remaining === 0) return resolve(results);   // empty input -> resolve []
+    if (remaining === 0) return resolve(results); // empty input -> resolve []
 
     items.forEach((item, index) => {
-      Promise.resolve(item).then((value) => {   // Promise.resolve handles plain values
+      Promise.resolve(item).then((value) => {
+        // Promise.resolve handles plain values
         results[index] = value;
         remaining--;
-        if (remaining === 0) resolve(results);  // the LAST one to finish resolves
-      }, reject);                                // first rejection wins (later calls are ignored)
+        if (remaining === 0) resolve(results); // the LAST one to finish resolves
+      }, reject); // first rejection wins (later calls are ignored)
     });
   });
 }
 ```
 
 Key points to say out loud:
+
 1. Wrap each item with `Promise.resolve()` so non-promises work.
 2. Store results **by index**, not by finish order.
 3. Use a **counter** to know when everything is done.
@@ -140,9 +151,9 @@ function promiseAllSettled(iterable) {
     Array.from(iterable, (item) =>
       Promise.resolve(item).then(
         (value) => ({ status: "fulfilled", value }),
-        (reason) => ({ status: "rejected", reason })   // turn rejections into values -> never rejects
-      )
-    )
+        (reason) => ({ status: "rejected", reason }), // turn rejections into values -> never rejects
+      ),
+    ),
   );
 }
 ```
@@ -153,7 +164,7 @@ function promiseAllSettled(iterable) {
 function promiseRace(iterable) {
   return new Promise((resolve, reject) => {
     for (const item of iterable) {
-      Promise.resolve(item).then(resolve, reject);     // whichever settles first wins
+      Promise.resolve(item).then(resolve, reject); // whichever settles first wins
     }
   });
 }
@@ -172,7 +183,8 @@ function promiseAny(iterable) {
       Promise.resolve(item).then(resolve, (err) => {
         errors[index] = err;
         remaining--;
-        if (remaining === 0) reject(new AggregateError(errors, "All promises were rejected"));
+        if (remaining === 0)
+          reject(new AggregateError(errors, "All promises were rejected"));
       });
     });
   });
@@ -186,11 +198,11 @@ function promiseAny(iterable) {
 ```js
 async function mapLimit(items, limit, mapper) {
   const results = new Array(items.length);
-  let next = 0;                                  // shared index, thanks to the closure
+  let next = 0; // shared index, thanks to the closure
 
   async function worker() {
     while (next < items.length) {
-      const i = next++;                          // grab the next job (safe: JS is single-threaded)
+      const i = next++; // grab the next job (safe: JS is single-threaded)
       results[i] = await mapper(items[i], i);
     }
   }
@@ -201,7 +213,9 @@ async function mapLimit(items, limit, mapper) {
 }
 
 // at most 3 requests in flight at any time, results in input order
-const users = await mapLimit([1, 2, 3, 4, 5, 6, 7, 8], 3, (id) => fetchUser(id));
+const users = await mapLimit([1, 2, 3, 4, 5, 6, 7, 8], 3, (id) =>
+  fetchUser(id),
+);
 ```
 
 ## 7. Follow-up questions interviewers ask
@@ -219,7 +233,7 @@ No, it is the **order of the input array**, regardless of which finished first.
 `Promise.allSettled`, or `.catch` on each promise to convert failures to a value (`p.catch(() => null)`).
 
 **Q: Does `Promise.all` run promises in parallel?**
-The *work* runs concurrently because the promises were already started when you created them. `Promise.all` only **waits** for them. (Single-threaded JS: the I/O such as network requests overlaps; CPU work doesn't.)
+The _work_ runs concurrently because the promises were already started when you created them. `Promise.all` only **waits** for them. (Single-threaded JS: the I/O such as network requests overlaps; CPU work doesn't.)
 
 **Q: What if an item isn't a promise?**
 It is treated as an already fulfilled value (`Promise.resolve(item)`).
@@ -233,11 +247,13 @@ Wrap in `try/catch` when using `await`, or use `.catch()`. Remember the catch ge
 ## 8. Predict the output
 
 **Q1**
+
 ```js
 Promise.all([sleep(30, "a"), sleep(10, "b"), 3]).then(console.log);
 ```
 
 **Q2**
+
 ```js
 Promise.all([sleep(10, "x", true), sleep(20, "y")])
   .then(console.log)
@@ -245,22 +261,27 @@ Promise.all([sleep(10, "x", true), sleep(20, "y")])
 ```
 
 **Q3**
+
 ```js
-Promise.allSettled([sleep(10, "a"), sleep(5, "b", true)])
-  .then((r) => console.log(r.map((x) => x.status)));
+Promise.allSettled([sleep(10, "a"), sleep(5, "b", true)]).then((r) =>
+  console.log(r.map((x) => x.status)),
+);
 ```
 
 **Q4**
+
 ```js
 Promise.race([sleep(30, "slow"), sleep(10, "fast")]).then(console.log);
 ```
 
 **Q5**
+
 ```js
 Promise.any([sleep(10, "e1", true), sleep(20, "ok")]).then(console.log);
 ```
 
 **Q6**
+
 ```js
 Promise.all([]).then(console.log);
 ```

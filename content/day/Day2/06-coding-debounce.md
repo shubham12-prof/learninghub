@@ -10,9 +10,9 @@ Write a function `debounce(fn, delay)` that returns a new function. When the new
 ```js
 const log = debounce((msg) => console.log(msg), 300);
 
-log("a");   // timer starts
-log("b");   // timer restarts
-log("c");   // timer restarts
+log("a"); // timer starts
+log("b"); // timer restarts
+log("c"); // timer restarts
 // ...300ms of silence...
 // prints: c      (only the LAST call runs)
 ```
@@ -21,12 +21,12 @@ log("c");   // timer restarts
 
 Some events fire **dozens of times per second**. Running expensive work on every one is wasteful.
 
-| Scenario | Debounce does |
-|---|---|
-| Search box (`input` event) | Call the API only after the user **stops typing** |
-| Window `resize` | Recalculate the layout once after the user stops resizing |
-| Auto-save a form | Save once after the user pauses |
-| Validate a field | Validate once typing pauses |
+| Scenario                   | Debounce does                                             |
+| -------------------------- | --------------------------------------------------------- |
+| Search box (`input` event) | Call the API only after the user **stops typing**         |
+| Window `resize`            | Recalculate the layout once after the user stops resizing |
+| Auto-save a form           | Save once after the user pauses                           |
+| Validate a field           | Validate once typing pauses                               |
 
 ## 3. Analogy
 
@@ -44,12 +44,12 @@ An **elevator door**. Every time someone walks in, the door waits again before c
 
 ```js
 function debounce(fn, delay) {
-  let timerId;                          // remembered by the closure
+  let timerId; // remembered by the closure
 
   return function (...args) {
-    clearTimeout(timerId);              // cancel the previous timer
+    clearTimeout(timerId); // cancel the previous timer
     timerId = setTimeout(() => {
-      fn.apply(this, args);             // arrow fn keeps `this` from the returned function
+      fn.apply(this, args); // arrow fn keeps `this` from the returned function
     }, delay);
   };
 }
@@ -65,13 +65,13 @@ input.addEventListener("input", (e) => onSearch(e.target.value));
 
 Why each line matters:
 
-| Line | Reason |
-|---|---|
-| `let timerId` outside the returned function | **Closure**: shared across calls of *this* debounced function |
-| `clearTimeout(timerId)` | Cancels the pending run -> this is the "reset the timer" part |
-| `function (...args)` (not an arrow) | A regular function gets its own `this` (so `obj.method = debounce(...)` works) |
-| `fn.apply(this, args)` | Calls the original with the right `this` and **all** the arguments |
-| Arrow inside `setTimeout` | Keeps `this` and `args` from the outer function |
+| Line                                        | Reason                                                                         |
+| ------------------------------------------- | ------------------------------------------------------------------------------ |
+| `let timerId` outside the returned function | **Closure**: shared across calls of _this_ debounced function                  |
+| `clearTimeout(timerId)`                     | Cancels the pending run -> this is the "reset the timer" part                  |
+| `function (...args)` (not an arrow)         | A regular function gets its own `this` (so `obj.method = debounce(...)` works) |
+| `fn.apply(this, args)`                      | Calls the original with the right `this` and **all** the arguments             |
+| Arrow inside `setTimeout`                   | Keeps `this` and `args` from the outer function                                |
 
 - Time: each call is **O(1)**. Space: **O(1)**.
 
@@ -95,25 +95,27 @@ function debounce(fn, delay, { leading = false, trailing = true } = {}) {
   function debounced(...args) {
     lastArgs = args;
     lastThis = this;
-    const callNow = leading && timerId === null;   // first call of a burst?
+    const callNow = leading && timerId === null; // first call of a burst?
 
     clearTimeout(timerId);
     timerId = setTimeout(() => {
       timerId = null;
-      if (trailing && lastArgs) invoke();          // run at the END of the burst
+      if (trailing && lastArgs) invoke(); // run at the END of the burst
       lastArgs = lastThis = undefined;
     }, delay);
 
-    if (callNow) invoke();                         // run at the START of the burst
+    if (callNow) invoke(); // run at the START of the burst
   }
 
-  debounced.cancel = function () {                 // drop the pending call
+  debounced.cancel = function () {
+    // drop the pending call
     clearTimeout(timerId);
     timerId = null;
     lastArgs = lastThis = undefined;
   };
 
-  debounced.flush = function () {                  // run the pending call right now
+  debounced.flush = function () {
+    // run the pending call right now
     if (timerId !== null) {
       clearTimeout(timerId);
       timerId = null;
@@ -127,11 +129,11 @@ function debounce(fn, delay, { leading = false, trailing = true } = {}) {
 
 How the options behave:
 
-| Options | Burst of calls A, B, C | Single call A |
-|---|---|---|
-| default (`trailing`) | runs **C** after the pause | runs A after the pause |
-| `{ leading: true, trailing: false }` | runs **A** immediately, ignores B and C | runs A immediately |
-| `{ leading: true, trailing: true }` | runs **A** immediately, then **C** after the pause | runs A **once** |
+| Options                              | Burst of calls A, B, C                             | Single call A          |
+| ------------------------------------ | -------------------------------------------------- | ---------------------- |
+| default (`trailing`)                 | runs **C** after the pause                         | runs A after the pause |
+| `{ leading: true, trailing: false }` | runs **A** immediately, ignores B and C            | runs A immediately     |
+| `{ leading: true, trailing: true }`  | runs **A** immediately, then **C** after the pause | runs A **once**        |
 
 Examples:
 
@@ -149,11 +151,11 @@ onType.flush();
 
 ## 6. Debounce vs Throttle
 
-| | **Debounce** | **Throttle** |
-|---|---|---|
-| Runs | **after** activity stops | **at most once** every N ms **during** activity |
-| Think | "wait until they're done" | "at most one per interval" |
-| Use for | search box, resize end, auto-save | scroll, mousemove, window drag, rate limiting |
+|         | **Debounce**                      | **Throttle**                                    |
+| ------- | --------------------------------- | ----------------------------------------------- |
+| Runs    | **after** activity stops          | **at most once** every N ms **during** activity |
+| Think   | "wait until they're done"         | "at most one per interval"                      |
+| Use for | search box, resize end, auto-save | scroll, mousemove, window drag, rate limiting   |
 
 A basic throttle (leading edge):
 
@@ -181,50 +183,62 @@ async function test() {
   const calls = [];
   const d = debounce((x) => calls.push(x), 50);
 
-  d(1); d(2); d(3);          // burst
+  d(1);
+  d(2);
+  d(3); // burst
   await sleep(80);
-  console.log(calls);        // [ 3 ]
+  console.log(calls); // [ 3 ]
 
   d(4);
   await sleep(80);
   d(5);
   await sleep(80);
-  console.log(calls);        // [ 3, 4, 5 ]  (calls spaced further apart than the delay all run)
+  console.log(calls); // [ 3, 4, 5 ]  (calls spaced further apart than the delay all run)
 
   // `this` is preserved
-  const obj = { name: "obj", hello: debounce(function () { console.log(this.name); }, 10) };
-  obj.hello();               // obj  (after 10ms)
+  const obj = {
+    name: "obj",
+    hello: debounce(function () {
+      console.log(this.name);
+    }, 10),
+  };
+  obj.hello(); // obj  (after 10ms)
   await sleep(30);
 
   // cancel -> only Solution 2 has `.cancel()` (Solution 1 would throw "c.cancel is not a function")
   const c = debounce(() => console.log("should not print"), 20);
-  c(); c.cancel();
-  await sleep(40);           // nothing printed
+  c();
+  c.cancel();
+  await sleep(40); // nothing printed
 }
 test();
 ```
 
 ## 8. Edge cases to mention
 
-| Case | Behaviour |
-|---|---|
-| `delay = 0` | Still async: runs after the current code and microtasks (like `setTimeout(fn, 0)`) |
-| Two debounced functions | **Independent**: each `debounce()` call makes its own `timerId` |
-| Arguments | Only the **last** call's arguments are used |
-| Return value | The wrapper returns `undefined` (the real call is delayed). Use a promise version if you need the result |
-| `this` | Use a regular function (not an arrow) for the returned function |
+| Case                    | Behaviour                                                                                                |
+| ----------------------- | -------------------------------------------------------------------------------------------------------- |
+| `delay = 0`             | Still async: runs after the current code and microtasks (like `setTimeout(fn, 0)`)                       |
+| Two debounced functions | **Independent**: each `debounce()` call makes its own `timerId`                                          |
+| Arguments               | Only the **last** call's arguments are used                                                              |
+| Return value            | The wrapper returns `undefined` (the real call is delayed). Use a promise version if you need the result |
+| `this`                  | Use a regular function (not an arrow) for the returned function                                          |
 
 ## 9. Common mistakes
 
-1. **Creating the debounced function inside the handler**, so every event gets a *new* `timerId` and nothing is ever debounced:
+1. **Creating the debounced function inside the handler**, so every event gets a _new_ `timerId` and nothing is ever debounced:
+
    ```js
    // BUG: a brand new debounced function on every keystroke
-   input.addEventListener("input", (e) => debounce(search, 300)(e.target.value));
+   input.addEventListener("input", (e) =>
+     debounce(search, 300)(e.target.value),
+   );
 
    // FIX: create it ONCE, outside
    const debouncedSearch = debounce(search, 300);
    input.addEventListener("input", (e) => debouncedSearch(e.target.value));
    ```
+
 2. Forgetting `clearTimeout`, so every call eventually runs (you only delayed them).
 3. Using an **arrow function** as the returned function and losing `this`.
 4. Forgetting to pass `...args` through to `fn`.
@@ -259,12 +273,14 @@ function throttleTrailing(fn, interval) {
     lastArgs = args;
     lastThis = this;
 
-    if (remaining <= 0) {                  // enough time passed: run now
+    if (remaining <= 0) {
+      // enough time passed: run now
       clearTimeout(timerId);
       timerId = null;
       lastCall = now;
       fn.apply(this, args);
-    } else if (timerId === null) {         // otherwise schedule one trailing call
+    } else if (timerId === null) {
+      // otherwise schedule one trailing call
       timerId = setTimeout(() => {
         lastCall = Date.now();
         timerId = null;
@@ -301,7 +317,10 @@ function debouncePromise(fn, delay) {
 function withTimeout(promise, ms) {
   let timerId;
   const timeout = new Promise((_, reject) => {
-    timerId = setTimeout(() => reject(new Error(`Timed out after ${ms}ms`)), ms);
+    timerId = setTimeout(
+      () => reject(new Error(`Timed out after ${ms}ms`)),
+      ms,
+    );
   });
   return Promise.race([promise, timeout]).finally(() => clearTimeout(timerId));
 }
@@ -312,8 +331,11 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 async function retry(fn, times) {
   let lastError;
   for (let i = 0; i < times; i++) {
-    try { return await fn(); }
-    catch (err) { lastError = err; }
+    try {
+      return await fn();
+    } catch (err) {
+      lastError = err;
+    }
   }
   throw lastError;
 }

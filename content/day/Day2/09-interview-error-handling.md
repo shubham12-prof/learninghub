@@ -9,15 +9,15 @@
 
 ## 2. The tools
 
-| Tool | Use |
-|---|---|
-| `try / catch / finally` | with `await`, in `async` functions |
-| `.catch(fn)` | at the end of a promise chain |
-| `.finally(fn)` | cleanup that must run on success **and** failure |
-| `throw` / `Promise.reject()` | signal an error |
-| `Promise.allSettled` | when partial failure is acceptable |
-| `window.addEventListener("unhandledrejection", ...)` | last-resort logging (browser) |
-| `process.on("unhandledRejection", ...)` | last-resort logging (Node) |
+| Tool                                                 | Use                                              |
+| ---------------------------------------------------- | ------------------------------------------------ |
+| `try / catch / finally`                              | with `await`, in `async` functions               |
+| `.catch(fn)`                                         | at the end of a promise chain                    |
+| `.finally(fn)`                                       | cleanup that must run on success **and** failure |
+| `throw` / `Promise.reject()`                         | signal an error                                  |
+| `Promise.allSettled`                                 | when partial failure is acceptable               |
+| `window.addEventListener("unhandledrejection", ...)` | last-resort logging (browser)                    |
+| `process.on("unhandledRejection", ...)`              | last-resort logging (Node)                       |
 
 ## 3. Examples
 
@@ -32,9 +32,9 @@ async function loadUser(id) {
     return await res.json();
   } catch (err) {
     console.error("Could not load user:", err.message);
-    return null;                    // fallback value
+    return null; // fallback value
   } finally {
-    hideSpinner();                  // runs on success AND failure, even after `return`
+    hideSpinner(); // runs on success AND failure, even after `return`
   }
 }
 ```
@@ -46,11 +46,11 @@ A `.catch` handles errors from **everything above it** in the chain:
 ```js
 Promise.reject(new Error("a"))
   .catch((e) => {
-    console.log("1", e.message);   // 1 a
-    throw new Error("b");           // rethrow / throw a new error -> goes to the NEXT catch
+    console.log("1", e.message); // 1 a
+    throw new Error("b"); // rethrow / throw a new error -> goes to the NEXT catch
   })
   .catch((e) => console.log("2", e.message)) // 2 b
-  .then(() => console.log("3"));             // 3  (the chain recovered)
+  .then(() => console.log("3")); // 3  (the chain recovered)
 ```
 
 ### 3.3 `.then(onOk, onErr)` is NOT the same as `.then(onOk).catch(onErr)`
@@ -58,8 +58,10 @@ Promise.reject(new Error("a"))
 ```js
 Promise.resolve("ok")
   .then(
-    () => { throw new Error("from then"); },
-    () => console.log("not called")        // handles errors from BEFORE, not from the callback next to it
+    () => {
+      throw new Error("from then");
+    },
+    () => console.log("not called"), // handles errors from BEFORE, not from the callback next to it
   )
   .catch((e) => console.log("catch:", e.message));
 // catch: from then
@@ -69,12 +71,12 @@ Prefer `.then(...).catch(...)` so the `catch` also covers errors thrown inside `
 
 ### 3.4 `fetch` does NOT reject on HTTP errors (the #1 interview trap)
 
-`fetch` rejects only on **network failure** (offline, DNS error, CORS block). A `404` or `500` is a *successful* fetch with `res.ok === false`.
+`fetch` rejects only on **network failure** (offline, DNS error, CORS block). A `404` or `500` is a _successful_ fetch with `res.ok === false`.
 
 ```js
 fetch("/missing")
-  .then((res) => console.log("then, ok =", res.ok))   // then, ok = false   (status 404)
-  .catch(() => console.log("catch"));                   // NOT called for a 404
+  .then((res) => console.log("then, ok =", res.ok)) // then, ok = false   (status 404)
+  .catch(() => console.log("catch")); // NOT called for a 404
 ```
 
 The standard fix is a small wrapper (reused in the Day 2 API project):
@@ -84,7 +86,7 @@ class HttpError extends Error {
   constructor(status, statusText) {
     super(`HTTP ${status} ${statusText}`);
     this.name = "HttpError";
-    this.status = status;                 // lets callers branch: 404 vs 500
+    this.status = status; // lets callers branch: 404 vs 500
   }
 }
 
@@ -99,9 +101,11 @@ async function fetchJSON(url, options) {
 
 ```js
 try {
-  setTimeout(() => { throw new Error("late"); }, 0);   // runs AFTER the try block is over
+  setTimeout(() => {
+    throw new Error("late");
+  }, 0); // runs AFTER the try block is over
 } catch (e) {
-  console.log("caught");                                // never runs
+  console.log("caught"); // never runs
 }
 console.log("end");
 // end
@@ -112,30 +116,33 @@ Same for plain callbacks and event handlers. With promises/`await` the error **i
 
 ```js
 try {
-  await new Promise((_, reject) => setTimeout(() => reject(new Error("late")), 0));
+  await new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("late")), 0),
+  );
 } catch (e) {
-  console.log("caught", e.message);   // caught late
+  console.log("caught", e.message); // caught late
 }
 ```
 
 ### 3.6 Throwing inside the `Promise` executor
 
 ```js
-new Promise(() => { throw new Error("boom"); })
-  .catch((e) => console.log("caught", e.message));   // caught boom (converted to a rejection)
+new Promise(() => {
+  throw new Error("boom");
+}).catch((e) => console.log("caught", e.message)); // caught boom (converted to a rejection)
 ```
 
 But an error thrown **inside a `setTimeout` inside the executor** is NOT converted: it is uncaught. Call `reject()` there instead.
 
 ### 3.7 Unhandled rejections
 
-If a promise rejects and **nobody** attaches a handler, you get an *unhandled rejection*:
+If a promise rejects and **nobody** attaches a handler, you get an _unhandled rejection_:
 
 - **Node.js (15+):** the process **crashes** (exit code 1) by default.
 - **Browsers:** an error is logged and an `unhandledrejection` event fires.
 
 ```js
-Promise.reject(new Error("nobody catches me"));   // Node: crashes with an error and exit code 1
+Promise.reject(new Error("nobody catches me")); // Node: crashes with an error and exit code 1
 
 // last-resort logging (do NOT use as your main strategy)
 window.addEventListener("unhandledrejection", (event) => {
@@ -147,15 +154,21 @@ window.addEventListener("unhandledrejection", (event) => {
 Common causes: forgetting `.catch`, forgetting `await` (so the `try/catch` doesn't wrap it), or calling an `async` function without handling its result:
 
 ```js
-async function save() { throw new Error("fail"); }
+async function save() {
+  throw new Error("fail");
+}
 
 try {
-  save();                  // BUG: not awaited -> the rejection escapes the try/catch
-} catch (e) { /* never runs */ }
+  save(); // BUG: not awaited -> the rejection escapes the try/catch
+} catch (e) {
+  /* never runs */
+}
 
 try {
-  await save();            // correct
-} catch (e) { console.log("caught", e.message); }
+  await save(); // correct
+} catch (e) {
+  console.log("caught", e.message);
+}
 ```
 
 ### 3.8 Custom errors to branch on
@@ -173,7 +186,7 @@ try {
   throw new ValidationError("Email is required", "email");
 } catch (err) {
   if (err instanceof ValidationError) console.log("Fix field:", err.field);
-  else throw err;            // not ours -> rethrow, don't swallow unknown errors
+  else throw err; // not ours -> rethrow, don't swallow unknown errors
 }
 ```
 
@@ -190,10 +203,11 @@ async function fetchWithTimeout(url, ms = 5000) {
   try {
     return await fetch(url, { signal: controller.signal });
   } catch (err) {
-    if (err.name === "AbortError") throw new Error(`Request timed out after ${ms}ms`);
+    if (err.name === "AbortError")
+      throw new Error(`Request timed out after ${ms}ms`);
     throw err;
   } finally {
-    clearTimeout(timer);                  // always clean the timer
+    clearTimeout(timer); // always clean the timer
   }
 }
 ```
@@ -207,14 +221,17 @@ For temporary failures (network blips, 503): wait a little, then retry with grow
 ```js
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-async function retry(fn, { retries = 3, baseDelay = 200, shouldRetry = () => true } = {}) {
+async function retry(
+  fn,
+  { retries = 3, baseDelay = 200, shouldRetry = () => true } = {},
+) {
   let attempt = 0;
   while (true) {
     try {
       return await fn(attempt);
     } catch (err) {
-      if (attempt >= retries || !shouldRetry(err)) throw err;   // give up
-      await sleep(baseDelay * 2 ** attempt);                    // 200, 400, 800...
+      if (attempt >= retries || !shouldRetry(err)) throw err; // give up
+      await sleep(baseDelay * 2 ** attempt); // 200, 400, 800...
       attempt++;
     }
   }
@@ -230,10 +247,16 @@ const data = await retry(() => fetchJSON("/api/data"), {
 ### 3.11 Partial failure with `Promise.allSettled`
 
 ```js
-const results = await Promise.allSettled(ids.map((id) => fetchJSON(`/api/users/${id}`)));
+const results = await Promise.allSettled(
+  ids.map((id) => fetchJSON(`/api/users/${id}`)),
+);
 
-const users  = results.filter((r) => r.status === "fulfilled").map((r) => r.value);
-const failed = results.filter((r) => r.status === "rejected").map((r) => r.reason);
+const users = results
+  .filter((r) => r.status === "fulfilled")
+  .map((r) => r.value);
+const failed = results
+  .filter((r) => r.status === "rejected")
+  .map((r) => r.reason);
 ```
 
 ## 4. Follow-up questions interviewers ask
@@ -265,9 +288,12 @@ No. Catch **where you can do something useful** (show a message, retry, use a fa
 ## 5. Predict the output
 
 **Q1**
+
 ```js
 try {
-  setTimeout(() => { throw new Error("late"); }, 0);
+  setTimeout(() => {
+    throw new Error("late");
+  }, 0);
 } catch (e) {
   console.log("caught");
 }
@@ -275,33 +301,45 @@ console.log("end");
 ```
 
 **Q2**
+
 ```js
 Promise.reject(new Error("a"))
-  .catch((e) => { console.log("1", e.message); throw new Error("b"); })
+  .catch((e) => {
+    console.log("1", e.message);
+    throw new Error("b");
+  })
   .catch((e) => console.log("2", e.message))
   .then(() => console.log("3"));
 ```
 
 **Q3**
+
 ```js
 async function f() {
-  try { await Promise.reject(new Error("x")); }
-  finally { console.log("cleanup"); }
+  try {
+    await Promise.reject(new Error("x"));
+  } finally {
+    console.log("cleanup");
+  }
 }
 f().catch((e) => console.log("caught", e.message));
 ```
 
 **Q4**
+
 ```js
 Promise.resolve("ok")
   .then(
-    () => { throw new Error("from then"); },
-    () => console.log("not called")
+    () => {
+      throw new Error("from then");
+    },
+    () => console.log("not called"),
   )
   .catch((e) => console.log("catch:", e.message));
 ```
 
 **Q5** (assume the server answers with status 404)
+
 ```js
 fetch("/missing")
   .then((res) => console.log("then, ok =", res.ok))

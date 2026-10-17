@@ -12,17 +12,17 @@ The project has two parts:
 
 ## 1. What you will practise
 
-| Skill | Where it shows up |
-|---|---|
-| `async/await` + `fetch` | `fetchJSON`, `loadUsers` |
-| Checking `res.ok` (fetch doesn't reject on 404/500) | `fetchJSON` |
-| `try / catch / finally` | `loadUsers` |
-| Timeout + cancellation with `AbortController` | `fetchJSON` |
-| Loading / success / empty / error UI states | `render` |
-| "Latest request wins" (closures + request id) | `loadUsers` |
-| Retry button | error state |
-| `debounce` (from `06-coding-debounce.md`) | search box |
-| Safe DOM updates (no `innerHTML` with API data) | `render` |
+| Skill                                               | Where it shows up        |
+| --------------------------------------------------- | ------------------------ |
+| `async/await` + `fetch`                             | `fetchJSON`, `loadUsers` |
+| Checking `res.ok` (fetch doesn't reject on 404/500) | `fetchJSON`              |
+| `try / catch / finally`                             | `loadUsers`              |
+| Timeout + cancellation with `AbortController`       | `fetchJSON`              |
+| Loading / success / empty / error UI states         | `render`                 |
+| "Latest request wins" (closures + request id)       | `loadUsers`              |
+| Retry button                                        | error state              |
+| `debounce` (from `06-coding-debounce.md`)           | search box               |
+| Safe DOM updates (no `innerHTML` with API data)     | `render`                 |
 
 ## 2. Setup
 
@@ -45,37 +45,79 @@ Create a folder `learninghub-day2` with `index.html` and `app.js`. The API is th
 ```html
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>LearningHub - Instructors</title>
-  <style>
-    body { font-family: system-ui, sans-serif; max-width: 560px; margin: 2rem auto; padding: 0 1rem; }
-    .toolbar { display: flex; gap: .5rem; margin-bottom: 1rem; }
-    .toolbar input { flex: 1; padding: .5rem; }
-    button { cursor: pointer; padding: .45rem .9rem; }
-    #status { min-height: 1.5rem; color: #444; }
-    #status[data-state="loading"] { color: #1d4ed8; }
-    #status[data-state="error"] { color: #b91c1c; }
-    ul { list-style: none; padding: 0; }
-    li { display: grid; gap: .15rem; padding: .75rem 1rem; margin-bottom: .5rem; border: 1px solid #ddd; border-radius: 8px; }
-    li span { color: #555; font-size: .9rem; }
-    .retry { margin-left: .5rem; }
-  </style>
-</head>
-<body>
-  <h1>LearningHub Instructors</h1>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LearningHub - Instructors</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 560px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
+      .toolbar {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+      }
+      .toolbar input {
+        flex: 1;
+        padding: 0.5rem;
+      }
+      button {
+        cursor: pointer;
+        padding: 0.45rem 0.9rem;
+      }
+      #status {
+        min-height: 1.5rem;
+        color: #444;
+      }
+      #status[data-state="loading"] {
+        color: #1d4ed8;
+      }
+      #status[data-state="error"] {
+        color: #b91c1c;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+      }
+      li {
+        display: grid;
+        gap: 0.15rem;
+        padding: 0.75rem 1rem;
+        margin-bottom: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+      li span {
+        color: #555;
+        font-size: 0.9rem;
+      }
+      .retry {
+        margin-left: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>LearningHub Instructors</h1>
 
-  <div class="toolbar">
-    <input id="search" type="search" placeholder="Search by name, email or company" aria-label="Search instructors" />
-    <button id="reload" type="button">Reload</button>
-  </div>
+    <div class="toolbar">
+      <input
+        id="search"
+        type="search"
+        placeholder="Search by name, email or company"
+        aria-label="Search instructors"
+      />
+      <button id="reload" type="button">Reload</button>
+    </div>
 
-  <p id="status" role="status" aria-live="polite"></p>
-  <ul id="list"></ul>
+    <p id="status" role="status" aria-live="polite"></p>
+    <ul id="list"></ul>
 
-  <script src="app.js"></script>
-</body>
+    <script src="app.js"></script>
+  </body>
 </html>
 ```
 
@@ -90,13 +132,13 @@ To run it: open `index.html` in a browser (the API allows requests from any orig
 3. **Empty:** if the API returns `[]`, show `No instructors yet.`
 4. **Error:** show a friendly message **and a "Try again" button** for each case:
 
-   | Situation | How it happens | Message to show |
-   |---|---|---|
-   | Network failure | offline / DNS / blocked | `Network problem. Check your internet connection.` |
-   | HTTP 404 | wrong URL | `We couldn't find that data (404).` |
-   | HTTP 5xx | server problem | `The server had a problem. Please try again (500).` |
-   | Timeout | no answer in 8 s | `Request timed out after 8s` |
-   | Unexpected data | response isn't an array | `Unexpected response from the server` |
+   | Situation       | How it happens          | Message to show                                     |
+   | --------------- | ----------------------- | --------------------------------------------------- |
+   | Network failure | offline / DNS / blocked | `Network problem. Check your internet connection.`  |
+   | HTTP 404        | wrong URL               | `We couldn't find that data (404).`                 |
+   | HTTP 5xx        | server problem          | `The server had a problem. Please try again (500).` |
+   | Timeout         | no answer in 8 s        | `Request timed out after 8s`                        |
+   | Unexpected data | response isn't an array | `Unexpected response from the server`               |
 
 5. The **Reload** button fetches again. If you click it while a request is in flight, the **old request is cancelled** and only the **newest** one may update the page (no stale data).
 6. A **search box** filters by name, email or company, **debounced by 300 ms**. If nothing matches: `No instructors match “<query>”.`
@@ -104,14 +146,14 @@ To run it: open `index.html` in a browser (the API allows requests from any orig
 
 ### Concept map
 
-| Requirement | Concept (file) |
-|---|---|
-| Check `res.ok`, custom `HttpError` | `09-interview-error-handling.md` |
-| Timeout + cancel | `09-interview-error-handling.md` (`AbortController`) |
-| Latest request wins | `05-closures-review.md` |
-| Debounced search | `06-coding-debounce.md` |
-| `try/catch/finally` | `02-async-await.md` |
-| `Promise.all` (stretch goals) | `08-interview-promise-all.md` |
+| Requirement                        | Concept (file)                                       |
+| ---------------------------------- | ---------------------------------------------------- |
+| Check `res.ok`, custom `HttpError` | `09-interview-error-handling.md`                     |
+| Timeout + cancel                   | `09-interview-error-handling.md` (`AbortController`) |
+| Latest request wins                | `05-closures-review.md`                              |
+| Debounced search                   | `06-coding-debounce.md`                              |
+| `try/catch/finally`                | `02-async-await.md`                                  |
+| `Promise.all` (stretch goals)      | `08-interview-promise-all.md`                        |
 
 ### Starter `app.js`
 
@@ -153,7 +195,7 @@ function setState(patch) {
 
 1. Keep `let requestId = 0;` outside `loadUsers`. At the start do `const myId = ++requestId;`. After every `await`, if `myId !== requestId`, `return` (a newer request exists).
 2. `controller.abort()` makes `fetch` reject with an error whose `name` is `"AbortError"`. Set a `timedOut` flag in your timer so you can tell a timeout from a manual cancel.
-3. A failed `fetch` (offline) throws a `TypeError`. An `HttpError` is *your* error for bad status codes.
+3. A failed `fetch` (offline) throws a `TypeError`. An `HttpError` is _your_ error for bad status codes.
 4. Use `finally { clearTimeout(timer); }` so the timer never leaks.
 5. In `render()`, start by clearing both `els.status` and `els.list`, then rebuild only what the current `state.status` needs.
 
@@ -195,10 +237,10 @@ async function fetchJSON(url, { timeoutMs = TIMEOUT_MS, signal } = {}) {
 
   const timer = setTimeout(() => {
     timedOut = true;
-    controller.abort();                              // stop the request after the timeout
+    controller.abort(); // stop the request after the timeout
   }, timeoutMs);
 
-  const onOuterAbort = () => controller.abort();     // let the caller cancel too
+  const onOuterAbort = () => controller.abort(); // let the caller cancel too
   if (signal) {
     if (signal.aborted) controller.abort();
     else signal.addEventListener("abort", onOuterAbort, { once: true });
@@ -206,7 +248,7 @@ async function fetchJSON(url, { timeoutMs = TIMEOUT_MS, signal } = {}) {
 
   try {
     const res = await fetch(url, { signal: controller.signal });
-    if (!res.ok) throw new HttpError(res.status, res.statusText);   // fetch does NOT reject on 404/500
+    if (!res.ok) throw new HttpError(res.status, res.statusText); // fetch does NOT reject on 404/500
     return await res.json();
   } catch (err) {
     if (err.name === "AbortError" && timedOut) {
@@ -214,7 +256,7 @@ async function fetchJSON(url, { timeoutMs = TIMEOUT_MS, signal } = {}) {
     }
     throw err;
   } finally {
-    clearTimeout(timer);                             // always clean up
+    clearTimeout(timer); // always clean up
     if (signal) signal.removeEventListener("abort", onOuterAbort);
   }
 }
@@ -222,10 +264,12 @@ async function fetchJSON(url, { timeoutMs = TIMEOUT_MS, signal } = {}) {
 function friendlyMessage(err) {
   if (err instanceof HttpError) {
     if (err.status === 404) return "We couldn't find that data (404).";
-    if (err.status >= 500) return `The server had a problem. Please try again (${err.status}).`;
+    if (err.status >= 500)
+      return `The server had a problem. Please try again (${err.status}).`;
     return `Request failed (${err.status}).`;
   }
-  if (err.name === "TypeError") return "Network problem. Check your internet connection.";
+  if (err.name === "TypeError")
+    return "Network problem. Check your internet connection.";
   return err.message || "Something went wrong.";
 }
 
@@ -233,7 +277,9 @@ function filterUsers(users, query) {
   const q = query.trim().toLowerCase();
   if (!q) return users;
   return users.filter((u) =>
-    [u.name, u.email, u.company?.name].filter(Boolean).some((text) => text.toLowerCase().includes(q))
+    [u.name, u.email, u.company?.name]
+      .filter(Boolean)
+      .some((text) => text.toLowerCase().includes(q)),
   );
 }
 
@@ -246,23 +292,24 @@ function debounce(fn, delay) {
 }
 
 // ---------- 3. Loading data ----------
-let requestId = 0;            // closure state: which request is the newest?
-let activeController = null;  // lets us cancel the previous request
+let requestId = 0; // closure state: which request is the newest?
+let activeController = null; // lets us cancel the previous request
 
 async function loadUsers() {
-  if (activeController) activeController.abort();     // cancel the old request, if any
+  if (activeController) activeController.abort(); // cancel the old request, if any
   activeController = new AbortController();
-  const myId = ++requestId;                           // this call's own id
+  const myId = ++requestId; // this call's own id
 
   setState({ status: "loading", error: "" });
 
   try {
     const users = await fetchJSON(API_URL, { signal: activeController.signal });
-    if (myId !== requestId) return;                   // stale: a newer request exists
-    if (!Array.isArray(users)) throw new Error("Unexpected response from the server");
+    if (myId !== requestId) return; // stale: a newer request exists
+    if (!Array.isArray(users))
+      throw new Error("Unexpected response from the server");
     setState({ status: "success", users });
   } catch (err) {
-    if (myId !== requestId) return;                   // stale failure / our own cancel: ignore
+    if (myId !== requestId) return; // stale failure / our own cancel: ignore
     setState({ status: "error", error: friendlyMessage(err) });
   }
 }
@@ -284,7 +331,7 @@ function render() {
 
   if (status === "error") {
     const message = document.createElement("span");
-    message.textContent = error;                      // textContent: safe
+    message.textContent = error; // textContent: safe
     const retry = document.createElement("button");
     retry.type = "button";
     retry.className = "retry";
@@ -294,12 +341,14 @@ function render() {
     return;
   }
 
-  if (status !== "success") return;                   // "idle": nothing to show
+  if (status !== "success") return; // "idle": nothing to show
 
   const visible = filterUsers(users, query);
 
   if (visible.length === 0) {
-    els.status.textContent = query.trim() ? `No instructors match “${query.trim()}”.` : "No instructors yet.";
+    els.status.textContent = query.trim()
+      ? `No instructors match “${query.trim()}”.`
+      : "No instructors yet.";
     return;
   }
 
@@ -315,7 +364,9 @@ function render() {
     email.textContent = user.email;
 
     const meta = document.createElement("span");
-    meta.textContent = [user.company?.name, user.address?.city].filter(Boolean).join(" · ");
+    meta.textContent = [user.company?.name, user.address?.city]
+      .filter(Boolean)
+      .join(" · ");
 
     li.append(name, email, meta);
     els.list.append(li);
@@ -326,7 +377,7 @@ function render() {
 els.reload.addEventListener("click", loadUsers);
 els.search.addEventListener(
   "input",
-  debounce((event) => setState({ query: event.target.value }), 300)
+  debounce((event) => setState({ query: event.target.value }), 300),
 );
 
 loadUsers();
@@ -346,12 +397,12 @@ A working happy path proves nothing. Real apps fail all the time, so **force eve
 
 ### Option 1: DevTools tricks
 
-| Test | How |
-|---|---|
-| **Loading** | Network tab -> throttling -> **Slow 3G**, then click Reload |
-| **Network error** | Network tab -> throttling -> **Offline**, then click Reload |
-| **404** | Temporarily change `API_URL` to `.../users/9999/nothing` |
-| **Retry works** | Go offline, trigger the error, go back online, click **Try again** |
+| Test              | How                                                                |
+| ----------------- | ------------------------------------------------------------------ |
+| **Loading**       | Network tab -> throttling -> **Slow 3G**, then click Reload        |
+| **Network error** | Network tab -> throttling -> **Offline**, then click Reload        |
+| **404**           | Temporarily change `API_URL` to `.../users/9999/nothing`           |
+| **Retry works**   | Go offline, trigger the error, go back online, click **Try again** |
 
 ### Option 2: paste a fake `fetch` into the Console
 
@@ -374,16 +425,23 @@ function simulate(mode) {
       new Response(JSON.stringify(body), { status, statusText });
 
     if (mode === "real") return realFetch(url, { signal });
-    if (mode === "offline") return wait(300).then(() => { throw new TypeError("Failed to fetch"); });
-    if (mode === "500") return wait(300).then(() => reply(500, {}, "Internal Server Error"));
-    if (mode === "404") return wait(300).then(() => reply(404, {}, "Not Found"));
+    if (mode === "offline")
+      return wait(300).then(() => {
+        throw new TypeError("Failed to fetch");
+      });
+    if (mode === "500")
+      return wait(300).then(() => reply(500, {}, "Internal Server Error"));
+    if (mode === "404")
+      return wait(300).then(() => reply(404, {}, "Not Found"));
     if (mode === "empty") return wait(300).then(() => reply(200, []));
-    if (mode === "weird") return wait(300).then(() => reply(200, { oops: true }));
-    if (mode === "slow") return wait(15000).then(() => realFetch(url, { signal })); // > 8s timeout
+    if (mode === "weird")
+      return wait(300).then(() => reply(200, { oops: true }));
+    if (mode === "slow")
+      return wait(15000).then(() => realFetch(url, { signal })); // > 8s timeout
   };
 }
 
-simulate("500");   // then click Reload
+simulate("500"); // then click Reload
 ```
 
 ### Test checklist
@@ -414,14 +472,14 @@ async function loadUsers() {
 
 It looks fine on a good connection, but contains **4 bugs**. Find each one by running the tests from section 5.
 
-| # | Test to run | What you'll see | Concept |
-|---|---|---|---|
-| 1 | `simulate("offline")` + Reload | Stuck on `Loading instructors…` forever; console shows `Uncaught (in promise) TypeError: Failed to fetch` | No `try/catch` around `await` (`02`, `09`) |
-| 2 | `simulate("500")` + Reload | Status reads `undefined instructors`, the list is empty, console shows `TypeError: visible is not iterable` | `fetch` doesn't reject on HTTP errors: check `res.ok` and validate the data (`09`) |
-| 3 | Click Reload twice quickly, with the **first** request slower than the second (e.g. `simulate("slow")` first, then switch to `simulate("real")` and click again) | The **older** response arrives last and overwrites the newer one | Latest wins: closure request id + `AbortController` (`05`) |
-| 4 | `simulate("slow")` + Reload and wait | Stays on `Loading instructors…` with no end | No timeout: `AbortController` + `setTimeout` (`09`) |
+| #   | Test to run                                                                                                                                                      | What you'll see                                                                                             | Concept                                                                            |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| 1   | `simulate("offline")` + Reload                                                                                                                                   | Stuck on `Loading instructors…` forever; console shows `Uncaught (in promise) TypeError: Failed to fetch`   | No `try/catch` around `await` (`02`, `09`)                                         |
+| 2   | `simulate("500")` + Reload                                                                                                                                       | Status reads `undefined instructors`, the list is empty, console shows `TypeError: visible is not iterable` | `fetch` doesn't reject on HTTP errors: check `res.ok` and validate the data (`09`) |
+| 3   | Click Reload twice quickly, with the **first** request slower than the second (e.g. `simulate("slow")` first, then switch to `simulate("real")` and click again) | The **older** response arrives last and overwrites the newer one                                            | Latest wins: closure request id + `AbortController` (`05`)                         |
+| 4   | `simulate("slow")` + Reload and wait                                                                                                                             | Stays on `Loading instructors…` with no end                                                                 | No timeout: `AbortController` + `setTimeout` (`09`)                                |
 
-> **A trap to watch for:** if you fix Bug 1 first (add only the `try/catch`) and test `simulate("500")`, you'll see a **misleading** `Network problem. Check your internet connection.` message even though the server answered. That is because the 500 body `{}` is treated as success, `render` crashes with a `TypeError` *inside* the `try`, and `friendlyMessage` maps every `TypeError` to "Network problem". The real fix is Bug 2 (`res.ok` check + `Array.isArray`), not a different message.
+> **A trap to watch for:** if you fix Bug 1 first (add only the `try/catch`) and test `simulate("500")`, you'll see a **misleading** `Network problem. Check your internet connection.` message even though the server answered. That is because the 500 body `{}` is treated as success, `render` crashes with a `TypeError` _inside_ the `try`, and `friendlyMessage` maps every `TypeError` to "Network problem". The real fix is Bug 2 (`res.ok` check + `Array.isArray`), not a different message.
 
 Don't scroll down until you have tried to fix each one.
 
@@ -460,7 +518,7 @@ async function loadUsers() {
   const myId = ++requestId;
   // ...
   const users = await fetchJSON(API_URL, { signal: activeController.signal });
-  if (myId !== requestId) return;      // stale
+  if (myId !== requestId) return; // stale
   // ...
 }
 ```
@@ -476,7 +534,7 @@ The **complete fixed version** is the Part A solution above (`fetchJSON` + `load
 3. **Cache** the last successful response in `localStorage` and show it immediately while refreshing (stale-while-revalidate). Wrap storage access in `try/catch`.
 4. **Pagination / "Load more"** with `https://jsonplaceholder.typicode.com/posts?_page=1&_limit=5`.
 5. **Skeleton loader:** show 3 grey placeholder cards instead of text while loading.
-6. **Write 5 sentences** in your own words: *"What happens in my app if the server returns a 500? If the user is offline? If they click Reload twice?"* This is exactly how interviewers phrase async-error questions.
+6. **Write 5 sentences** in your own words: _"What happens in my app if the server returns a 500? If the user is offline? If they click Reload twice?"_ This is exactly how interviewers phrase async-error questions.
 
 ### Applying it to your real project
 
