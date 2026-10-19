@@ -10,8 +10,16 @@ A normal variable can't do this:
 
 ```jsx
 function Broken() {
-  let count = 0;                        // reset to 0 on EVERY render, and changing it doesn't re-render
-  return <button onClick={() => { count++; }}>{count}</button>;   // always shows 0
+  let count = 0; // reset to 0 on EVERY render, and changing it doesn't re-render
+  return (
+    <button
+      onClick={() => {
+        count++;
+      }}
+    >
+      {count}
+    </button>
+  ); // always shows 0
 }
 ```
 
@@ -21,8 +29,10 @@ function Broken() {
 import { useState } from "react";
 
 function Counter() {
-  const [count, setCount] = useState(0);      // [current value, setter]; 0 = initial value
-  return <button onClick={() => setCount(count + 1)}>Clicked {count} times</button>;
+  const [count, setCount] = useState(0); // [current value, setter]; 0 = initial value
+  return (
+    <button onClick={() => setCount(count + 1)}>Clicked {count} times</button>
+  );
 }
 ```
 
@@ -40,7 +50,7 @@ function Demo() {
 
   function handleClick() {
     setCount(count + 5);
-    console.log(count);        // still 0! this render's snapshot
+    console.log(count); // still 0! this render's snapshot
   }
 
   return <button onClick={handleClick}>{count}</button>;
@@ -54,7 +64,7 @@ The same applies to timers and async code: they see the **snapshot from the rend
 ```jsx
 function handleClick() {
   setCount(count + 5);
-  setTimeout(() => console.log(count), 100);   // logs 0, not 5
+  setTimeout(() => console.log(count), 100); // logs 0, not 5
 }
 ```
 
@@ -64,7 +74,7 @@ function handleClick() {
 function handleClick() {
   setCount(count + 1);
   setCount(count + 1);
-  setCount(count + 1);       // all three use the SAME snapshot (0): result is 1, not 3
+  setCount(count + 1); // all three use the SAME snapshot (0): result is 1, not 3
 }
 ```
 
@@ -72,7 +82,7 @@ function handleClick() {
 function handleClick() {
   setCount((c) => c + 1);
   setCount((c) => c + 1);
-  setCount((c) => c + 1);    // each receives the latest queued value: result is 3
+  setCount((c) => c + 1); // each receives the latest queued value: result is 3
 }
 ```
 
@@ -86,7 +96,7 @@ React **groups several state updates from the same event into one re-render** (s
 function handleClick() {
   setA(1);
   setB(2);
-  setC(3);        // ONE re-render, not three
+  setC(3); // ONE re-render, not three
 }
 ```
 
@@ -107,23 +117,32 @@ setUser({ ...user, name: "Ravi" });
 
 Cheat sheet for arrays and objects:
 
-| Goal | Don't (mutates) | Do (new value) |
-|---|---|---|
-| Add to array | `arr.push(x)` | `[...arr, x]` |
-| Remove from array | `arr.splice(i, 1)` | `arr.filter((item) => item.id !== id)` |
-| Replace an item | `arr[i] = x` | `arr.map((item) => item.id === id ? { ...item, done: true } : item)` |
-| Sort / reverse | `arr.sort()` / `arr.reverse()` | `[...arr].sort(...)` or `arr.toSorted(...)` |
-| Update object field | `obj.a = 1` | `{ ...obj, a: 1 }` |
-| Update nested field | `obj.a.b = 1` | `{ ...obj, a: { ...obj.a, b: 1 } }` |
+| Goal                | Don't (mutates)                | Do (new value)                                                       |
+| ------------------- | ------------------------------ | -------------------------------------------------------------------- |
+| Add to array        | `arr.push(x)`                  | `[...arr, x]`                                                        |
+| Remove from array   | `arr.splice(i, 1)`             | `arr.filter((item) => item.id !== id)`                               |
+| Replace an item     | `arr[i] = x`                   | `arr.map((item) => item.id === id ? { ...item, done: true } : item)` |
+| Sort / reverse      | `arr.sort()` / `arr.reverse()` | `[...arr].sort(...)` or `arr.toSorted(...)`                          |
+| Update object field | `obj.a = 1`                    | `{ ...obj, a: 1 }`                                                   |
+| Update nested field | `obj.a.b = 1`                  | `{ ...obj, a: { ...obj.a, b: 1 } }`                                  |
 
 Example: a todo list.
 
 ```jsx
 function Todos() {
-  const [todos, setTodos] = useState([{ id: 1, text: "Learn React", done: false }]);
+  const [todos, setTodos] = useState([
+    { id: 1, text: "Learn React", done: false },
+  ]);
 
-  const add = (text) => setTodos((prev) => [...prev, { id: crypto.randomUUID(), text, done: false }]);
-  const toggle = (id) => setTodos((prev) => prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)));
+  const add = (text) =>
+    setTodos((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), text, done: false },
+    ]);
+  const toggle = (id) =>
+    setTodos((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)),
+    );
   const remove = (id) => setTodos((prev) => prev.filter((t) => t.id !== id));
   // ...
 }
@@ -134,7 +153,7 @@ function Todos() {
 `useState(initial)` uses `initial` **only on the first render**, but the expression is **evaluated on every render**. For expensive work, pass a **function** so it only runs once:
 
 ```jsx
-const [data, setData] = useState(readHugeThingFromStorage());     // runs every render (result ignored after the 1st)
+const [data, setData] = useState(readHugeThingFromStorage()); // runs every render (result ignored after the 1st)
 const [data, setData] = useState(() => readHugeThingFromStorage()); // runs once
 ```
 
@@ -150,7 +169,9 @@ const [filtered, setFiltered] = useState(allItems);
 
 // GOOD: calculate it
 const [query, setQuery] = useState("");
-const filtered = allItems.filter((i) => i.name.toLowerCase().includes(query.toLowerCase()));
+const filtered = allItems.filter((i) =>
+  i.name.toLowerCase().includes(query.toLowerCase()),
+);
 ```
 
 This is exactly how the searchable list in `06-coding-searchable-list.md` works.
@@ -164,8 +185,8 @@ function Parent() {
   const [query, setQuery] = useState("");
   return (
     <>
-      <SearchBox value={query} onChange={setQuery} />   // changes it
-      <Results query={query} />                          // reads it
+      <SearchBox value={query} onChange={setQuery} /> // changes it
+      <Results query={query} /> // reads it
     </>
   );
 }
@@ -175,11 +196,11 @@ function Parent() {
 
 Ask: does it **change over time**, is it **not passed in as a prop**, and **can't it be calculated** from something else? If yes to all, it's state.
 
-| Use `useState` | Don't |
-|---|---|
-| Input text, toggles, selected tab, fetched data, form values | Values derived from other state/props |
-| | Values that must **not** trigger a render (timer IDs, previous values): use `useRef` |
-| | Constants: keep them outside the component |
+| Use `useState`                                               | Don't                                                                                |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
+| Input text, toggles, selected tab, fetched data, form values | Values derived from other state/props                                                |
+|                                                              | Values that must **not** trigger a render (timer IDs, previous values): use `useRef` |
+|                                                              | Constants: keep them outside the component                                           |
 
 ## 11. Common mistakes
 
@@ -194,38 +215,76 @@ Ask: does it **change over time**, is it **not passed in as a prop**, and **can'
 ## 12. Predict the output
 
 **Q1** What does the button show after **one** click?
+
 ```jsx
 function A() {
   const [n, setN] = useState(0);
-  return <button onClick={() => { setN(n + 1); setN(n + 1); setN(n + 1); }}>{n}</button>;
+  return (
+    <button
+      onClick={() => {
+        setN(n + 1);
+        setN(n + 1);
+        setN(n + 1);
+      }}
+    >
+      {n}
+    </button>
+  );
 }
 ```
 
 **Q2** And this one?
+
 ```jsx
 function B() {
   const [n, setN] = useState(0);
-  return <button onClick={() => { setN((c) => c + 1); setN((c) => c + 1); setN((c) => c + 1); }}>{n}</button>;
+  return (
+    <button
+      onClick={() => {
+        setN((c) => c + 1);
+        setN((c) => c + 1);
+        setN((c) => c + 1);
+      }}
+    >
+      {n}
+    </button>
+  );
 }
 ```
 
 **Q3** What is logged by the timeout after one click, and what does the button show later?
+
 ```jsx
 function C() {
   const [n, setN] = useState(0);
   return (
-    <button onClick={() => { setN(n + 5); setTimeout(() => console.log(n), 100); }}>{n}</button>
+    <button
+      onClick={() => {
+        setN(n + 5);
+        setTimeout(() => console.log(n), 100);
+      }}
+    >
+      {n}
+    </button>
   );
 }
 ```
 
 **Q4** What does `<p>` show after clicking "mut", and then "copy"?
+
 ```jsx
 function M() {
   const [u, setU] = useState({ name: "a" });
   return (
     <div>
-      <button onClick={() => { u.name = "mutated"; setU(u); }}>mut</button>
+      <button
+        onClick={() => {
+          u.name = "mutated";
+          setU(u);
+        }}
+      >
+        mut
+      </button>
       <button onClick={() => setU({ ...u, name: "copied" })}>copy</button>
       <p>{u.name}</p>
     </div>
@@ -234,14 +293,23 @@ function M() {
 ```
 
 **Q5** How many times is `expensive()` called after the component has rendered **3 times** in total?
+
 ```jsx
 let calls = 0;
-const expensive = () => { calls++; return 42; };
+const expensive = () => {
+  calls++;
+  return 42;
+};
 
 function D() {
   const [n, setN] = useState(expensive());
   const [m] = useState(() => expensive());
-  return <button onClick={() => setN(n + 1)}>{n}{m}</button>;
+  return (
+    <button onClick={() => setN(n + 1)}>
+      {n}
+      {m}
+    </button>
+  );
 }
 ```
 

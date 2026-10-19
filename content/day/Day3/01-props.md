@@ -4,14 +4,14 @@
 
 ## 1. What are props?
 
-**Props** (short for *properties*) are the **inputs of a component**. A component is just a JavaScript function, and props are the **single object argument** it receives.
+**Props** (short for _properties_) are the **inputs of a component**. A component is just a JavaScript function, and props are the **single object argument** it receives.
 
 ```jsx
 function Greeting(props) {
   return <h1>Hello, {props.name}!</h1>;
 }
 
-<Greeting name="Asha" />   // props = { name: "Asha" }
+<Greeting name="Asha" />; // props = { name: "Asha" }
 ```
 
 You almost always **destructure** them in the parameter list:
@@ -40,8 +40,12 @@ Props are the **ingredients and instructions on an order form**. The kitchen (th
 function CourseCard({ title, hours, isNew, tags, instructor, onEnroll }) {
   return (
     <article>
-      <h2>{title} {isNew && <span>NEW</span>}</h2>
-      <p>{hours} hours by {instructor.name}</p>
+      <h2>
+        {title} {isNew && <span>NEW</span>}
+      </h2>
+      <p>
+        {hours} hours by {instructor.name}
+      </p>
       <p>Tags: {tags.join(", ")}</p>
       <button onClick={() => onEnroll(title)}>Enroll</button>
     </article>
@@ -49,13 +53,13 @@ function CourseCard({ title, hours, isNew, tags, instructor, onEnroll }) {
 }
 
 <CourseCard
-  title="React Basics"            // string: quotes
-  hours={12}                      // number: curly braces
-  isNew                           // boolean shorthand: isNew={true}
-  tags={["react", "frontend"]}    // array
-  instructor={{ name: "Ravi" }}   // object (double braces: braces for JS + braces for the object)
-  onEnroll={(t) => alert(t)}      // function
-/>
+  title="React Basics" // string: quotes
+  hours={12} // number: curly braces
+  isNew // boolean shorthand: isNew={true}
+  tags={["react", "frontend"]} // array
+  instructor={{ name: "Ravi" }} // object (double braces: braces for JS + braces for the object)
+  onEnroll={(t) => alert(t)} // function
+/>;
 ```
 
 Rule: **strings** can use quotes, **everything else** goes inside `{ }`.
@@ -92,7 +96,7 @@ function Card({ title, children }) {
 <Card title="Next lesson">
   <p>Closures in depth</p>
   <button>Start</button>
-</Card>
+</Card>;
 ```
 
 ### 3.4 Child talks to parent: callback props
@@ -123,7 +127,7 @@ Naming convention: props that take functions start with **`on`** (`onToggle`, `o
 ```jsx
 const buttonProps = { type: "submit", disabled: false, "aria-label": "Send" };
 
-<button {...buttonProps}>Send</button>
+<button {...buttonProps}>Send</button>;
 ```
 
 Useful for wrapper components (`<MyInput {...rest} />`), but don't spread blindly: you can forward props you didn't intend to.
@@ -144,30 +148,30 @@ function FancyInput({ ref, ...rest }) {
 
 ```jsx
 function Bad(props) {
-  props.name = "Changed";          // WRONG: React freezes props in development
-  return <p>{props.name}</p>;      // TypeError: Cannot assign to read only property 'name'
+  props.name = "Changed"; // WRONG: React freezes props in development
+  return <p>{props.name}</p>; // TypeError: Cannot assign to read only property 'name'
 }
 ```
 
-If a component needs to change a value over time, that value should be **state** (see `02-state.md`), not a prop. If you need a modified *copy* for display, compute it inside the component:
+If a component needs to change a value over time, that value should be **state** (see `02-state.md`), not a prop. If you need a modified _copy_ for display, compute it inside the component:
 
 ```jsx
 function Title({ text }) {
-  const shout = text.toUpperCase();   // fine: a new value, the prop is untouched
+  const shout = text.toUpperCase(); // fine: a new value, the prop is untouched
   return <h1>{shout}</h1>;
 }
 ```
 
 ## 5. Props vs state
 
-| | **Props** | **State** |
-|---|---|---|
-| Owned by | the **parent** | the **component itself** |
-| Can the component change it? | **No** (read-only) | **Yes** (via the setter) |
-| Changing it re-renders | the child (when the parent passes new ones) | the component |
-| Used for | configuring a component | data that changes over time (input text, open/closed, counters) |
+|                              | **Props**                                   | **State**                                                       |
+| ---------------------------- | ------------------------------------------- | --------------------------------------------------------------- |
+| Owned by                     | the **parent**                              | the **component itself**                                        |
+| Can the component change it? | **No** (read-only)                          | **Yes** (via the setter)                                        |
+| Changing it re-renders       | the child (when the parent passes new ones) | the component                                                   |
+| Used for                     | configuring a component                     | data that changes over time (input text, open/closed, counters) |
 
-A value can be **state in the parent** and **a prop in the child** at the same time. That is the whole idea of *lifting state up*.
+A value can be **state in the parent** and **a prop in the child** at the same time. That is the whole idea of _lifting state up_.
 
 ## 6. Prop drilling and composition
 
@@ -201,17 +205,23 @@ Fixes, in order of preference:
 ## 8. Predict the output
 
 **Q1**
+
 ```jsx
 function Item({ label, done = false }) {
-  return <li>{label}: {done ? "done" : "todo"}</li>;
+  return (
+    <li>
+      {label}: {done ? "done" : "todo"}
+    </li>
+  );
 }
 <ul>
   <Item label="Read" done />
   <Item label="Write" />
-</ul>
+</ul>;
 ```
 
 **Q2**
+
 ```jsx
 function Box({ children }) {
   return <div>[{children}]</div>;
@@ -221,33 +231,43 @@ function Box({ children }) {
 ```
 
 **Q3**
+
 ```jsx
 function Badge({ count }) {
   return <div>{count && <b>{count}</b>}</div>;
 }
-<Badge count={0} />
+<Badge count={0} />;
 ```
 
 **Q4**
+
 ```jsx
 function Bad(props) {
   props.name = "Changed";
   return <p>{props.name}</p>;
 }
-<Bad name="Asha" />
+<Bad name="Asha" />;
 ```
+
 (Development build.)
 
 **Q5**
+
 ```jsx
 function Child({ onPick }) {
   return <button onClick={() => onPick("react")}>pick</button>;
 }
 function Parent() {
   const [choice, setChoice] = useState("none");
-  return <div><Child onPick={setChoice} /><p>{choice}</p></div>;
+  return (
+    <div>
+      <Child onPick={setChoice} />
+      <p>{choice}</p>
+    </div>
+  );
 }
 ```
+
 What does the `<p>` show after clicking the button?
 
 ## 9. Answers

@@ -6,32 +6,32 @@ Same format as Days 1 and 2: **one file per topic**, so you can learn each idea 
 
 > **1 working component + 5 answers**
 
-| | What | Where | Done |
-|---|---|---|---|
-| **1 working component** | Build the **searchable list with filters** (or the counter with filters) and run it in a Vite app | `06-coding-searchable-list.md` | [ ] |
-| **Answer 1** | "Explain `useState`. Why doesn't `setCount(count + 1)` three times add 3?" | `07-interview-usestate.md` | [ ] |
-| **Answer 2** | "Explain `useEffect` and the dependency array. What is cleanup for?" | `08-interview-useeffect.md` | [ ] |
-| **Answer 3** | "What are keys, and why is the array index a bad key?" | `09-interview-keys-rerendering.md` | [ ] |
-| **Answer 4** | "When does a component re-render, and how do you avoid unnecessary re-renders?" | `09-interview-keys-rerendering.md` + `03-rendering.md` | [ ] |
-| **Answer 5** | "Controlled vs uncontrolled components? Props vs state?" | `05-controlled-components.md` + `01-props.md` | [ ] |
-| **Bonus (project)** | Build a **reusable `Accordion`** and fix the broken version | `10-project-reusable-component.md` | [ ] |
+|                         | What                                                                                              | Where                                                  | Done |
+| ----------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | ---- |
+| **1 working component** | Build the **searchable list with filters** (or the counter with filters) and run it in a Vite app | `06-coding-searchable-list.md`                         | [ ]  |
+| **Answer 1**            | "Explain `useState`. Why doesn't `setCount(count + 1)` three times add 3?"                        | `07-interview-usestate.md`                             | [ ]  |
+| **Answer 2**            | "Explain `useEffect` and the dependency array. What is cleanup for?"                              | `08-interview-useeffect.md`                            | [ ]  |
+| **Answer 3**            | "What are keys, and why is the array index a bad key?"                                            | `09-interview-keys-rerendering.md`                     | [ ]  |
+| **Answer 4**            | "When does a component re-render, and how do you avoid unnecessary re-renders?"                   | `09-interview-keys-rerendering.md` + `03-rendering.md` | [ ]  |
+| **Answer 5**            | "Controlled vs uncontrolled components? Props vs state?"                                          | `05-controlled-components.md` + `01-props.md`          | [ ]  |
+| **Bonus (project)**     | Build a **reusable `Accordion`** and fix the broken version                                       | `10-project-reusable-component.md`                     | [ ]  |
 
 **How to count an answer as "done":** you said it **out loud in under 60 seconds**, using the 30-second answer in the file as your model, and you can handle the follow-up questions listed there.
 
 ## What's inside
 
-| # | File | Type | Time | Done |
-|---|---|---|---|---|
-| 01 | `01-props.md` | Theory | 30 min | [ ] |
-| 02 | `02-state.md` | Theory | 40 min | [ ] |
-| 03 | `03-rendering.md` | Theory | 40 min | [ ] |
-| 04 | `04-hooks.md` | Theory | 45 min | [ ] |
-| 05 | `05-controlled-components.md` | Theory | 40 min | [ ] |
-| 06 | `06-coding-searchable-list.md` | Coding | 75 min | [ ] |
-| 07 | `07-interview-usestate.md` | Interview | 35 min | [ ] |
-| 08 | `08-interview-useeffect.md` | Interview | 45 min | [ ] |
-| 09 | `09-interview-keys-rerendering.md` | Interview | 45 min | [ ] |
-| 10 | `10-project-reusable-component.md` | Project | 90 min | [ ] |
+| #   | File                               | Type      | Time   | Done |
+| --- | ---------------------------------- | --------- | ------ | ---- |
+| 01  | `01-props.md`                      | Theory    | 30 min | [ ]  |
+| 02  | `02-state.md`                      | Theory    | 40 min | [ ]  |
+| 03  | `03-rendering.md`                  | Theory    | 40 min | [ ]  |
+| 04  | `04-hooks.md`                      | Theory    | 45 min | [ ]  |
+| 05  | `05-controlled-components.md`      | Theory    | 40 min | [ ]  |
+| 06  | `06-coding-searchable-list.md`     | Coding    | 75 min | [ ]  |
+| 07  | `07-interview-usestate.md`         | Interview | 35 min | [ ]  |
+| 08  | `08-interview-useeffect.md`        | Interview | 45 min | [ ]  |
+| 09  | `09-interview-keys-rerendering.md` | Interview | 45 min | [ ]  |
+| 10  | `10-project-reusable-component.md` | Project   | 90 min | [ ]  |
 
 **Everything:** about 7.5 hours (split it over 2 sessions if you like).
 **Just the daily target:** about 4.5 hours (01, 02, 03, 05, 06, 07, 08, 09; skim 04 and skip 10 if you're short on time).
@@ -75,31 +75,31 @@ Same pattern as Days 1 and 2:
 
 1. **Read** the explanation.
 2. **Type the examples yourself** and change values.
-3. **Predict what the screen will show** *before* you run it. React bugs are almost always a wrong prediction about **when** things render.
+3. **Predict what the screen will show** _before_ you run it. React bugs are almost always a wrong prediction about **when** things render.
 4. **Explain it out loud** as if teaching a friend.
 5. **Tick the checklist** at the end of each file.
 
 ## Quick-revision cheat sheet
 
-| Topic | One-line memory hook |
-|---|---|
-| Props | Read-only inputs, parent to child; callbacks go child to parent |
-| State | Remembered data; **a snapshot per render**; setter schedules a re-render |
-| Updater function | Next state depends on previous? `setX(prev => ...)` |
-| Immutability | New arrays/objects, never `push`/`splice`/`obj.x = ...` on state |
-| Derived data | Calculate during render; never store what you can compute |
-| Rendering | Render (call the function) -> commit (apply only the DOM differences) |
-| Re-render causes | Own state, parent re-render, context change |
-| `memo` | Skips re-render if props are shallow-equal; inline functions/objects defeat it |
-| Hooks rules | Top level only, same order every render, only in components/hooks |
-| `useEffect` | Sync with the outside world; none = every render, `[]` = mount, `[a]` = when `a` changes; **cleanup** undoes setup |
-| Effects to avoid | Derived state, user-action logic, resetting state (use `key`) |
-| Keys | Stable, unique among siblings, from your data; never `index` for dynamic lists, never random |
-| `key` change | Remounts the component with fresh state |
-| Controlled input | `value` + `onChange`: React state is the single source of truth |
-| Uncontrolled input | `defaultValue` + `ref`/`FormData`: the DOM owns the value |
-| `useRef` | Mutable box that does **not** re-render (DOM nodes, timer ids) |
-| Strict Mode (dev) | Renders twice, effect -> cleanup -> effect, to expose impure code |
+| Topic              | One-line memory hook                                                                                               |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| Props              | Read-only inputs, parent to child; callbacks go child to parent                                                    |
+| State              | Remembered data; **a snapshot per render**; setter schedules a re-render                                           |
+| Updater function   | Next state depends on previous? `setX(prev => ...)`                                                                |
+| Immutability       | New arrays/objects, never `push`/`splice`/`obj.x = ...` on state                                                   |
+| Derived data       | Calculate during render; never store what you can compute                                                          |
+| Rendering          | Render (call the function) -> commit (apply only the DOM differences)                                              |
+| Re-render causes   | Own state, parent re-render, context change                                                                        |
+| `memo`             | Skips re-render if props are shallow-equal; inline functions/objects defeat it                                     |
+| Hooks rules        | Top level only, same order every render, only in components/hooks                                                  |
+| `useEffect`        | Sync with the outside world; none = every render, `[]` = mount, `[a]` = when `a` changes; **cleanup** undoes setup |
+| Effects to avoid   | Derived state, user-action logic, resetting state (use `key`)                                                      |
+| Keys               | Stable, unique among siblings, from your data; never `index` for dynamic lists, never random                       |
+| `key` change       | Remounts the component with fresh state                                                                            |
+| Controlled input   | `value` + `onChange`: React state is the single source of truth                                                    |
+| Uncontrolled input | `defaultValue` + `ref`/`FormData`: the DOM owns the value                                                          |
+| `useRef`           | Mutable box that does **not** re-render (DOM nodes, timer ids)                                                     |
+| Strict Mode (dev)  | Renders twice, effect -> cleanup -> effect, to expose impure code                                                  |
 
 ## Day 3 goals
 

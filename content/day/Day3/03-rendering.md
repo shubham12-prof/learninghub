@@ -8,18 +8,18 @@
 
 ```jsx
 function Welcome({ name }) {
-  console.log("render Welcome");     // runs every time React renders this component
-  return <h1>Hello {name}</h1>;      // returns a description (React elements)
+  console.log("render Welcome"); // runs every time React renders this component
+  return <h1>Hello {name}</h1>; // returns a description (React elements)
 }
 ```
 
 A render is **not** the same as updating the screen. React does three separate things:
 
-| Step | What happens |
-|---|---|
-| **1. Trigger** | Something asks for a render: first mount, or a state update |
-| **2. Render** | React **calls your components** and compares the result with the previous one (no DOM changes yet) |
-| **3. Commit** | React applies **only the differences** to the real DOM; then runs layout effects and, after paint, effects |
+| Step           | What happens                                                                                               |
+| -------------- | ---------------------------------------------------------------------------------------------------------- |
+| **1. Trigger** | Something asks for a render: first mount, or a state update                                                |
+| **2. Render**  | React **calls your components** and compares the result with the previous one (no DOM changes yet)         |
+| **3. Commit**  | React applies **only the differences** to the real DOM; then runs layout effects and, after paint, effects |
 
 So a component can render **without the DOM changing at all** (if the output is the same, React touches nothing).
 
@@ -29,7 +29,7 @@ A restaurant: **trigger** = a new order, **render** = the chef writes the update
 
 ## 3. What triggers a re-render?
 
-1. **The component's own state changes** (`setX` with a *different* value).
+1. **The component's own state changes** (`setX` with a _different_ value).
 2. **Its parent re-renders** (children re-render by default, **even if their props are identical**).
 3. **A context it consumes changes** (`useContext`).
 
@@ -43,7 +43,7 @@ function Parent() {
   return (
     <div>
       <button onClick={() => setN(n + 1)}>parent state: {n}</button>
-      <Child />          // re-renders on every click, even though it has no props
+      <Child /> // re-renders on every click, even though it has no props
     </div>
   );
 }
@@ -57,7 +57,7 @@ If you call the setter with a value that is `Object.is`-equal to the current one
 
 ```jsx
 const [n, setN] = useState(0);
-<button onClick={() => setN(0)}>same</button>     // no re-render of children
+<button onClick={() => setN(0)}>same</button>; // no re-render of children
 ```
 
 (In rare cases React may call the component function one more time before bailing out, but it never re-renders the children or changes the DOM.)
@@ -93,7 +93,7 @@ If the two `Counter`s are wrapped in **different element types** (`<div>` vs `<s
 To force a reset on purpose, give the component a **`key`**:
 
 ```jsx
-<Counter key={userId} />      // new key => brand-new component, fresh state
+<Counter key={userId} /> // new key => brand-new component, fresh state
 ```
 
 ## 5. Rendering must be pure
@@ -107,10 +107,15 @@ A component function should behave like a **pure function**: same props + state 
 ```jsx
 // BAD: mutates something outside
 let guestCount = 0;
-function Guest() { guestCount++; return <p>Guest #{guestCount}</p>; }
+function Guest() {
+  guestCount++;
+  return <p>Guest #{guestCount}</p>;
+}
 
 // GOOD: derive from props
-function Guest({ number }) { return <p>Guest #{number}</p>; }
+function Guest({ number }) {
+  return <p>Guest #{number}</p>;
+}
 ```
 
 ### Strict Mode
@@ -120,8 +125,11 @@ In development, `<StrictMode>` **renders every component twice** and **runs ever
 ```jsx
 // with <StrictMode> in development
 function C() {
-  console.log("render");                 // "render" appears twice per render
-  useEffect(() => { console.log("effect"); return () => console.log("cleanup"); }, []);
+  console.log("render"); // "render" appears twice per render
+  useEffect(() => {
+    console.log("effect");
+    return () => console.log("cleanup");
+  }, []);
   return null;
 }
 // sequence: render, render, effect, cleanup, effect
@@ -152,11 +160,20 @@ If only a small part needs the state, put the state in a **small component** so 
 ```jsx
 function Wrapper({ children }) {
   const [n, setN] = useState(0);
-  return (<div><button onClick={() => setN(n + 1)}>{n}</button>{children}</div>);
+  return (
+    <div>
+      <button onClick={() => setN(n + 1)}>{n}</button>
+      {children}
+    </div>
+  );
 }
 
 function App() {
-  return <Wrapper><ExpensiveTree /></Wrapper>;   // ExpensiveTree does NOT re-render when Wrapper's state changes
+  return (
+    <Wrapper>
+      <ExpensiveTree />
+    </Wrapper>
+  ); // ExpensiveTree does NOT re-render when Wrapper's state changes
 }
 ```
 
@@ -168,10 +185,10 @@ const Row = memo(function Row({ item, onSelect }) {
 });
 ```
 
-`memo` compares props **shallowly** (`Object.is` on each prop). A new object, array or function **created inline on every render** is a *new reference*, so `memo` is defeated:
+`memo` compares props **shallowly** (`Object.is` on each prop). A new object, array or function **created inline on every render** is a _new reference_, so `memo` is defeated:
 
 ```jsx
-<Row onSelect={() => select(id)} />          // new function each time -> Row re-renders anyway
+<Row onSelect={() => select(id)} /> // new function each time -> Row re-renders anyway
 ```
 
 Fix with **`useCallback`** (functions) and **`useMemo`** (objects/arrays/expensive values), see `04-hooks.md`.
@@ -179,20 +196,28 @@ Fix with **`useCallback`** (functions) and **`useMemo`** (objects/arrays/expensi
 ```jsx
 const handleSelect = useCallback((id) => select(id), []);
 const options = useMemo(() => ({ dense: true }), []);
-<Row onSelect={handleSelect} options={options} />
+<Row onSelect={handleSelect} options={options} />;
 ```
 
 ### 7.3 The React Compiler
 
-React 19 has an optional **React Compiler** (a build plugin) that adds this kind of memoisation **automatically**. Even with it, understanding *why* components re-render is an interview staple.
+React 19 has an optional **React Compiler** (a build plugin) that adds this kind of memoisation **automatically**. Even with it, understanding _why_ components re-render is an interview staple.
 
 ## 8. Conditional rendering gotchas
 
 ```jsx
-{count && <Badge />}           // count = 0  -> renders the number 0
-{count > 0 && <Badge />}       // correct
-{isOpen ? <Panel /> : null}    // explicit
-{items.length === 0 && <p>No results</p>}
+{
+  count && <Badge />;
+} // count = 0  -> renders the number 0
+{
+  count > 0 && <Badge />;
+} // correct
+{
+  isOpen ? <Panel /> : null;
+} // explicit
+{
+  items.length === 0 && <p>No results</p>;
+}
 ```
 
 `false`, `null`, `undefined` and `""` render nothing, but **`0` and `NaN` render as text**.
@@ -207,7 +232,9 @@ React 19 has an optional **React Compiler** (a build plugin) that adds this kind
 6. Defining a component **inside** another component: it's a **new component type every render**, so its state resets and DOM is recreated.
    ```jsx
    function Parent() {
-     function Child() { return <input />; }   // BAD: new type on each Parent render
+     function Child() {
+       return <input />;
+     } // BAD: new type on each Parent render
      return <Child />;
    }
    ```
@@ -215,55 +242,109 @@ React 19 has an optional **React Compiler** (a build plugin) that adds this kind
 ## 10. Predict the output
 
 **Q1** How many times do `Plain` and `Memoed` render after **one** click (including the first render)?
+
 ```jsx
-let plain = 0, memoed = 0;
-const Plain = () => { plain++; return <i />; };
-const Memoed = memo(() => { memoed++; return <i />; });
+let plain = 0,
+  memoed = 0;
+const Plain = () => {
+  plain++;
+  return <i />;
+};
+const Memoed = memo(() => {
+  memoed++;
+  return <i />;
+});
 
 function P() {
   const [n, setN] = useState(0);
-  return <div><button onClick={() => setN(n + 1)}>p</button><Plain /><Memoed /></div>;
+  return (
+    <div>
+      <button onClick={() => setN(n + 1)}>p</button>
+      <Plain />
+      <Memoed />
+    </div>
+  );
 }
 ```
 
 **Q2** How many times does `Via` render after one click on "go" (including the first render)?
+
 ```jsx
 let viaRenders = 0;
-const Via = () => { viaRenders++; return <i />; };
+const Via = () => {
+  viaRenders++;
+  return <i />;
+};
 
 function Wrapper({ children }) {
   const [n, setN] = useState(0);
-  return <div><button onClick={() => setN(n + 1)}>go</button>{n}{children}</div>;
+  return (
+    <div>
+      <button onClick={() => setN(n + 1)}>go</button>
+      {n}
+      {children}
+    </div>
+  );
 }
-function App() { return <Wrapper><Via /></Wrapper>; }
+function App() {
+  return (
+    <Wrapper>
+      <Via />
+    </Wrapper>
+  );
+}
 ```
 
 **Q3** After clicking `A:` twice and then "flip", what does the counter show in each version?
+
 ```jsx
 function Counter({ label }) {
   const [n, setN] = useState(0);
-  return <button onClick={() => setN(n + 1)}>{label}:{n}</button>;
+  return (
+    <button onClick={() => setN(n + 1)}>
+      {label}:{n}
+    </button>
+  );
 }
 
 // Version 1
-{showA ? <Counter label="A" /> : <Counter label="B" />}
+{
+  showA ? <Counter label="A" /> : <Counter label="B" />;
+}
 
 // Version 2
-{showA ? <div><Counter label="A" /></div> : <section><Counter label="B" /></section>}
+{
+  showA ? (
+    <div>
+      <Counter label="A" />
+    </div>
+  ) : (
+    <section>
+      <Counter label="B" />
+    </section>
+  );
+}
 ```
 
 **Q4** What is logged in a **StrictMode** development build on mount?
+
 ```jsx
 function C() {
   console.log("render");
-  useEffect(() => { console.log("effect"); return () => console.log("cleanup"); }, []);
+  useEffect(() => {
+    console.log("effect");
+    return () => console.log("cleanup");
+  }, []);
   return <i />;
 }
 ```
 
 **Q5** What text does this render?
+
 ```jsx
-<div>{0 && <b>x</b>}|{"" && <b>z</b>}|{null}|{false}</div>
+<div>
+  {0 && <b>x</b>}|{"" && <b>z</b>}|{null}|{false}
+</div>
 ```
 
 ## 11. Answers

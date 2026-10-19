@@ -7,16 +7,16 @@
 
 **Hooks are functions that let a function component "hook into" React features** (state, lifecycle, context, refs, ...). Their names start with **`use`**.
 
-| Hook | Use it for |
-|---|---|
-| `useState` | remembered values that trigger re-renders |
-| `useEffect` | synchronising with something **outside React** (network, timers, subscriptions, DOM APIs) |
-| `useRef` | a mutable box that **doesn't** trigger renders; access to DOM elements |
-| `useMemo` | caching an **expensive calculated value** |
-| `useCallback` | caching a **function** reference |
-| `useContext` | reading shared data without prop drilling |
-| `useReducer` | state with many related updates (like a mini Redux) |
-| Custom hooks | reusing stateful logic between components |
+| Hook          | Use it for                                                                                |
+| ------------- | ----------------------------------------------------------------------------------------- |
+| `useState`    | remembered values that trigger re-renders                                                 |
+| `useEffect`   | synchronising with something **outside React** (network, timers, subscriptions, DOM APIs) |
+| `useRef`      | a mutable box that **doesn't** trigger renders; access to DOM elements                    |
+| `useMemo`     | caching an **expensive calculated value**                                                 |
+| `useCallback` | caching a **function** reference                                                          |
+| `useContext`  | reading shared data without prop drilling                                                 |
+| `useReducer`  | state with many related updates (like a mini Redux)                                       |
+| Custom hooks  | reusing stateful logic between components                                                 |
 
 ## 2. The two rules of hooks
 
@@ -28,16 +28,20 @@
 ```jsx
 function Bad({ loggedIn }) {
   if (loggedIn) {
-    const [name, setName] = useState("");   // WRONG: the hook order changes between renders
+    const [name, setName] = useState(""); // WRONG: the hook order changes between renders
   }
   const [age, setAge] = useState(0);
 }
 
 function Good({ loggedIn }) {
-  const [name, setName] = useState("");     // always called
+  const [name, setName] = useState(""); // always called
   const [age, setAge] = useState(0);
-  if (!loggedIn) return null;               // conditions go AFTER the hooks (or inside them)
-  return <p>{name} {age}</p>;
+  if (!loggedIn) return null; // conditions go AFTER the hooks (or inside them)
+  return (
+    <p>
+      {name} {age}
+    </p>
+  );
 }
 ```
 
@@ -56,7 +60,7 @@ function SearchBox() {
   const inputRef = useRef(null);
 
   useEffect(() => {
-    inputRef.current.focus();          // runs after the DOM exists
+    inputRef.current.focus(); // runs after the DOM exists
   }, []);
 
   return <input ref={inputRef} placeholder="Search" />;
@@ -68,20 +72,28 @@ function SearchBox() {
 ```jsx
 function Stopwatch() {
   const [seconds, setSeconds] = useState(0);
-  const timerId = useRef(null);                 // not rendered, so not state
+  const timerId = useRef(null); // not rendered, so not state
 
-  const start = () => { timerId.current = setInterval(() => setSeconds((s) => s + 1), 1000); };
+  const start = () => {
+    timerId.current = setInterval(() => setSeconds((s) => s + 1), 1000);
+  };
   const stop = () => clearInterval(timerId.current);
 
-  return (<><p>{seconds}s</p><button onClick={start}>Start</button><button onClick={stop}>Stop</button></>);
+  return (
+    <>
+      <p>{seconds}s</p>
+      <button onClick={start}>Start</button>
+      <button onClick={stop}>Stop</button>
+    </>
+  );
 }
 ```
 
-| | `useState` | `useRef` |
-|---|---|---|
-| Changing it re-renders | **Yes** | **No** |
-| Can I read it during render for UI? | Yes | Avoid (it may be stale in the UI) |
-| Typical use | what's displayed | timer ids, DOM nodes, previous values |
+|                                     | `useState`       | `useRef`                              |
+| ----------------------------------- | ---------------- | ------------------------------------- |
+| Changing it re-renders              | **Yes**          | **No**                                |
+| Can I read it during render for UI? | Yes              | Avoid (it may be stale in the UI)     |
+| Typical use                         | what's displayed | timer ids, DOM nodes, previous values |
 
 ## 4. `useMemo` and `useCallback`
 
@@ -91,7 +103,7 @@ Both **cache** something between renders and only recompute when a **dependency*
 // useMemo: cache a VALUE
 const visible = useMemo(
   () => items.filter((i) => i.name.includes(query)),
-  [items, query]                    // recompute only when these change
+  [items, query], // recompute only when these change
 );
 
 // useCallback: cache a FUNCTION (it is useMemo(() => fn, deps))
@@ -112,20 +124,24 @@ Context lets a parent provide a value that **any descendant** can read, skipping
 ```jsx
 import { createContext, useContext, useState } from "react";
 
-const ThemeContext = createContext("light");              // default value
+const ThemeContext = createContext("light"); // default value
 
 function App() {
   const [theme, setTheme] = useState("dark");
   return (
-    <ThemeContext value={theme}>                          {/* React 19: <Context> works as the provider */}
+    <ThemeContext value={theme}>
+      {" "}
+      {/* React 19: <Context> works as the provider */}
       <Toolbar />
-      <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>toggle</button>
+      <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+        toggle
+      </button>
     </ThemeContext>
   );
 }
 
 function Toolbar() {
-  return <ThemedButton />;                                // no props needed
+  return <ThemedButton />; // no props needed
 }
 
 function ThemedButton() {
@@ -143,10 +159,14 @@ When several state values change **together**, or the next state depends on **ac
 ```jsx
 function reducer(state, action) {
   switch (action.type) {
-    case "add":    return { ...state, items: [...state.items, action.item] };
-    case "remove": return { ...state, items: state.items.filter((i) => i.id !== action.id) };
-    case "clear":  return { ...state, items: [] };
-    default:       throw new Error("Unknown action: " + action.type);
+    case "add":
+      return { ...state, items: [...state.items, action.item] };
+    case "remove":
+      return { ...state, items: state.items.filter((i) => i.id !== action.id) };
+    case "clear":
+      return { ...state, items: [] };
+    default:
+      throw new Error("Unknown action: " + action.type);
   }
 }
 
@@ -155,7 +175,13 @@ function Cart() {
 
   return (
     <>
-      <button onClick={() => dispatch({ type: "add", item: { id: Date.now(), name: "Book" } })}>Add</button>
+      <button
+        onClick={() =>
+          dispatch({ type: "add", item: { id: Date.now(), name: "Book" } })
+        }
+      >
+        Add
+      </button>
       <button onClick={() => dispatch({ type: "clear" })}>Clear</button>
       <p>{state.items.length} items</p>
     </>
@@ -181,7 +207,7 @@ function useDebounce(value, delay = 300) {
 
   useEffect(() => {
     const id = setTimeout(() => setDebounced(value), delay);
-    return () => clearTimeout(id);                  // cleanup cancels the previous timer
+    return () => clearTimeout(id); // cleanup cancels the previous timer
   }, [value, delay]);
 
   return debounced;
@@ -193,12 +219,16 @@ function useLocalStorage(key, initial) {
       const saved = localStorage.getItem(key);
       return saved !== null ? JSON.parse(saved) : initial;
     } catch {
-      return initial;                               // storage blocked or corrupted JSON
+      return initial; // storage blocked or corrupted JSON
     }
   });
 
   useEffect(() => {
-    try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* ignore */ }
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch {
+      /* ignore */
+    }
   }, [key, value]);
 
   return [value, setValue];
@@ -211,7 +241,7 @@ Usage:
 function Demo() {
   const [open, toggleOpen] = useToggle();
   const [query, setQuery] = useState("");
-  const debouncedQuery = useDebounce(query, 300);      // only changes 300ms after typing stops
+  const debouncedQuery = useDebounce(query, 300); // only changes 300ms after typing stops
   const [name, setName] = useLocalStorage("name", "");
   // ...
 }
@@ -221,11 +251,11 @@ function Demo() {
 
 ## 8. Quick look at newer hooks (React 19)
 
-| Hook | Purpose |
-|---|---|
-| `useTransition` | mark a state update as **non-urgent** so typing stays responsive |
-| `useDeferredValue` | a lagging copy of a value for expensive renders |
-| `useId` | stable unique IDs for `htmlFor` / `aria-*` (SSR-safe) |
+| Hook                                     | Purpose                                                          |
+| ---------------------------------------- | ---------------------------------------------------------------- |
+| `useTransition`                          | mark a state update as **non-urgent** so typing stays responsive |
+| `useDeferredValue`                       | a lagging copy of a value for expensive renders                  |
+| `useId`                                  | stable unique IDs for `htmlFor` / `aria-*` (SSR-safe)            |
 | `useActionState`, `useOptimistic`, `use` | form actions, optimistic UI, reading promises/context (React 19) |
 
 You don't need these for the Day 3 target, but know they exist.
@@ -242,6 +272,7 @@ You don't need these for the Day 3 target, but know they exist.
 ## 10. Predict the output
 
 **Q1** What is wrong here, and what's the fix?
+
 ```jsx
 function Profile({ user }) {
   if (!user) return null;
@@ -251,16 +282,26 @@ function Profile({ user }) {
 ```
 
 **Q2** How many times does the component re-render when the button is clicked (not counting the first render)?
+
 ```jsx
 function R() {
   const r = useRef(0);
-  return <button onClick={() => { r.current++; }}>ref</button>;
+  return (
+    <button
+      onClick={() => {
+        r.current++;
+      }}
+    >
+      ref
+    </button>
+  );
 }
 ```
 
 **Q3** What does `useDebounce` return if `query` changes from `"a"` to `"ab"` to `"abc"` within 100 ms, with `delay = 300`? (Assume no further changes.)
 
 **Q4** What will the `count` text be after two clicks on "add"?
+
 ```jsx
 function reducer(state, action) {
   if (action.type === "add") return { count: state.count + 1 };
@@ -268,7 +309,11 @@ function reducer(state, action) {
 }
 function C() {
   const [state, dispatch] = useReducer(reducer, { count: 0 });
-  return <button onClick={() => dispatch({ type: "add" })}>count {state.count}</button>;
+  return (
+    <button onClick={() => dispatch({ type: "add" })}>
+      count {state.count}
+    </button>
+  );
 }
 ```
 

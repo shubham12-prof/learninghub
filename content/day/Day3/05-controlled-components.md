@@ -12,7 +12,7 @@ function NameForm() {
 
   return (
     <input
-      value={name}                              // 1. React decides what the input shows
+      value={name} // 1. React decides what the input shows
       onChange={(e) => setName(e.target.value)} // 2. every change goes back into state
     />
   );
@@ -29,12 +29,13 @@ function Uncontrolled() {
 
   function handleSubmit(e) {
     e.preventDefault();
-    console.log(inputRef.current.value);            // read the DOM when needed
+    console.log(inputRef.current.value); // read the DOM when needed
   }
 
   return (
     <form onSubmit={handleSubmit}>
-      <input ref={inputRef} defaultValue="Asha" />  {/* defaultValue = initial value only */}
+      <input ref={inputRef} defaultValue="Asha" />{" "}
+      {/* defaultValue = initial value only */}
       <button>Save</button>
     </form>
   );
@@ -47,14 +48,14 @@ A **controlled** input is a puppet: React holds the strings (state) and the pupp
 
 ## 3. Controlled vs uncontrolled
 
-| | **Controlled** | **Uncontrolled** |
-|---|---|---|
-| Where the value lives | React **state** | the **DOM** |
-| Props | `value` + `onChange` | `defaultValue` (+ `ref`) |
-| Re-renders on each keystroke | Yes | No |
-| Instant validation / formatting / disabling a button | Easy | Harder |
-| Reading the value | any time (it's state) | when you ask (`ref.current.value` / `FormData`) |
-| Good for | most forms, live search, validation | simple forms, file inputs, integrating non-React code |
+|                                                      | **Controlled**                      | **Uncontrolled**                                      |
+| ---------------------------------------------------- | ----------------------------------- | ----------------------------------------------------- |
+| Where the value lives                                | React **state**                     | the **DOM**                                           |
+| Props                                                | `value` + `onChange`                | `defaultValue` (+ `ref`)                              |
+| Re-renders on each keystroke                         | Yes                                 | No                                                    |
+| Instant validation / formatting / disabling a button | Easy                                | Harder                                                |
+| Reading the value                                    | any time (it's state)               | when you ask (`ref.current.value` / `FormData`)       |
+| Good for                                             | most forms, live search, validation | simple forms, file inputs, integrating non-React code |
 
 ## 4. Every input type
 
@@ -70,29 +71,46 @@ function AllInputs() {
     <form>
       {/* text / textarea / select all use value + onChange */}
       <input value={text} onChange={(e) => setText(e.target.value)} />
-      <textarea value={bio} onChange={(e) => setBio(e.target.value)} />   {/* value, NOT children */}
-      <select value={level} onChange={(e) => setLevel(e.target.value)}>   {/* value on <select>, NOT selected on <option> */}
+      <textarea value={bio} onChange={(e) => setBio(e.target.value)} />{" "}
+      {/* value, NOT children */}
+      <select value={level} onChange={(e) => setLevel(e.target.value)}>
+        {" "}
+        {/* value on <select>, NOT selected on <option> */}
         <option value="beginner">Beginner</option>
         <option value="advanced">Advanced</option>
       </select>
-
       {/* checkbox uses `checked` and e.target.checked */}
-      <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
-
+      <input
+        type="checkbox"
+        checked={agree}
+        onChange={(e) => setAgree(e.target.checked)}
+      />
       {/* radio: `checked` compares with state */}
-      <input type="radio" name="plan" value="free" checked={plan === "free"} onChange={(e) => setPlan(e.target.value)} />
-      <input type="radio" name="plan" value="pro"  checked={plan === "pro"}  onChange={(e) => setPlan(e.target.value)} />
+      <input
+        type="radio"
+        name="plan"
+        value="free"
+        checked={plan === "free"}
+        onChange={(e) => setPlan(e.target.value)}
+      />
+      <input
+        type="radio"
+        name="plan"
+        value="pro"
+        checked={plan === "pro"}
+        onChange={(e) => setPlan(e.target.value)}
+      />
     </form>
   );
 }
 ```
 
-| Element | Controlled with | Read from the event |
-|---|---|---|
-| `<input type="text">`, `<textarea>`, `<select>` | `value` | `e.target.value` |
-| `<input type="checkbox">` | `checked` | `e.target.checked` |
-| `<input type="radio">` | `checked={state === thisValue}` | `e.target.value` |
-| `<input type="file">` | **always uncontrolled** (read `e.target.files`) | `e.target.files` |
+| Element                                         | Controlled with                                 | Read from the event |
+| ----------------------------------------------- | ----------------------------------------------- | ------------------- |
+| `<input type="text">`, `<textarea>`, `<select>` | `value`                                         | `e.target.value`    |
+| `<input type="checkbox">`                       | `checked`                                       | `e.target.checked`  |
+| `<input type="radio">`                          | `checked={state === thisValue}`                 | `e.target.value`    |
+| `<input type="file">`                           | **always uncontrolled** (read `e.target.files`) | `e.target.files`    |
 
 ## 5. One state object + one handler for many fields
 
@@ -100,28 +118,52 @@ Use the input's **`name`** attribute so one handler serves every field:
 
 ```jsx
 function SignUp() {
-  const [form, setForm] = useState({ name: "", email: "", level: "beginner", newsletter: false });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    level: "beginner",
+    newsletter: false,
+  });
 
   function handleChange(e) {
     const { name, type, value, checked } = e.target;
-    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));   // [name] = computed key
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    })); // [name] = computed key
   }
 
   function handleSubmit(e) {
-    e.preventDefault();                  // stop the browser from reloading the page
+    e.preventDefault(); // stop the browser from reloading the page
     console.log("Submitting", form);
   }
 
   return (
     <form onSubmit={handleSubmit}>
-      <input name="name" value={form.name} onChange={handleChange} placeholder="Name" />
-      <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="Email" />
+      <input
+        name="name"
+        value={form.name}
+        onChange={handleChange}
+        placeholder="Name"
+      />
+      <input
+        name="email"
+        type="email"
+        value={form.email}
+        onChange={handleChange}
+        placeholder="Email"
+      />
       <select name="level" value={form.level} onChange={handleChange}>
         <option value="beginner">Beginner</option>
         <option value="advanced">Advanced</option>
       </select>
       <label>
-        <input name="newsletter" type="checkbox" checked={form.newsletter} onChange={handleChange} />
+        <input
+          name="newsletter"
+          type="checkbox"
+          checked={form.newsletter}
+          onChange={handleChange}
+        />
         Newsletter
       </label>
       <button type="submit">Join</button>
@@ -147,7 +189,7 @@ function EmailField() {
       <input
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        onBlur={() => setTouched(true)}          // only complain after the user leaves the field
+        onBlur={() => setTouched(true)} // only complain after the user leaves the field
         aria-invalid={Boolean(showError)}
       />
       {showError && <p role="alert">{error}</p>}
@@ -160,7 +202,10 @@ function EmailField() {
 Transforming input while typing is also easy:
 
 ```jsx
-<input value={code} onChange={(e) => setCode(e.target.value.toUpperCase().slice(0, 6))} />
+<input
+  value={code}
+  onChange={(e) => setCode(e.target.value.toUpperCase().slice(0, 6))}
+/>
 ```
 
 ## 7. Uncontrolled with `FormData` (React 19 style)
@@ -171,7 +216,7 @@ For simple forms you can skip state entirely:
 function QuickForm() {
   function handleSubmit(e) {
     e.preventDefault();
-    const data = Object.fromEntries(new FormData(e.currentTarget));   // { name: "...", email: "..." }
+    const data = Object.fromEntries(new FormData(e.currentTarget)); // { name: "...", email: "..." }
     console.log(data);
   }
 
@@ -212,25 +257,42 @@ function QuickForm() {
 ## 10. Predict the output
 
 **Q1** What can the user do with this input?
+
 ```jsx
 <input value="fixed" />
 ```
 
 **Q2** After typing `ab` into this input, what does `<p>` show?
+
 ```jsx
 function F() {
   const [t, setT] = useState("");
-  return (<><input aria-label="t" value={t} onChange={(e) => setT(e.target.value.toUpperCase())} /><p>{t}</p></>);
+  return (
+    <>
+      <input
+        aria-label="t"
+        value={t}
+        onChange={(e) => setT(e.target.value.toUpperCase())}
+      />
+      <p>{t}</p>
+    </>
+  );
 }
 ```
 
 **Q3** What is the checkbox's state after one click, starting unchecked?
+
 ```jsx
 const [on, setOn] = useState(false);
-<input type="checkbox" checked={on} onChange={(e) => setOn(e.target.checked)} />
+<input
+  type="checkbox"
+  checked={on}
+  onChange={(e) => setOn(e.target.checked)}
+/>;
 ```
 
 **Q4** In `handleChange` from section 5, what does this line do when the user types in the **email** field?
+
 ```jsx
 setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
 ```

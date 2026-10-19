@@ -17,13 +17,13 @@ Build a React component `SearchableList` for LearningHub that shows a list of co
 
 **Step 1: what is state, what is derived?**
 
-| Value | State or derived? | Why |
-|---|---|---|
-| `query`, `category`, `freeOnly`, `sortBy` | **State** | The user changes them; nothing else can calculate them |
-| `courses` | **Prop** | Comes from the parent (makes the component reusable) |
-| `categories` | **Derived** | Calculated from `courses` |
-| `visible` (the filtered, sorted list) | **Derived** | Calculated from `courses` + the four state values |
-| `hasFilters` | **Derived** | `query !== "" \|\| category !== ALL \|\| freeOnly` |
+| Value                                     | State or derived? | Why                                                    |
+| ----------------------------------------- | ----------------- | ------------------------------------------------------ |
+| `query`, `category`, `freeOnly`, `sortBy` | **State**         | The user changes them; nothing else can calculate them |
+| `courses`                                 | **Prop**          | Comes from the parent (makes the component reusable)   |
+| `categories`                              | **Derived**       | Calculated from `courses`                              |
+| `visible` (the filtered, sorted list)     | **Derived**       | Calculated from `courses` + the four state values      |
+| `hasFilters`                              | **Derived**       | `query !== "" \|\| category !== ALL \|\| freeOnly`     |
 
 > **Golden rule:** don't put `visible` in state and don't use `useEffect` to keep it in sync. Calculate it during render. One source of truth, no sync bugs.
 
@@ -56,14 +56,70 @@ src/
 
 ```js
 export const COURSES = [
-  { id: 1, title: "JavaScript Basics", category: "Frontend", level: "Beginner", hours: 10, free: true },
-  { id: 2, title: "Advanced JavaScript", category: "Frontend", level: "Advanced", hours: 18, free: false },
-  { id: 3, title: "React Fundamentals", category: "Frontend", level: "Beginner", hours: 14, free: true },
-  { id: 4, title: "Node.js and Express", category: "Backend", level: "Intermediate", hours: 20, free: false },
-  { id: 5, title: "SQL for Beginners", category: "Data", level: "Beginner", hours: 8, free: true },
-  { id: 6, title: "Python for Data Analysis", category: "Data", level: "Intermediate", hours: 16, free: false },
-  { id: 7, title: "REST API Design", category: "Backend", level: "Intermediate", hours: 9, free: true },
-  { id: 8, title: "CSS Layouts", category: "Frontend", level: "Beginner", hours: 6, free: true },
+  {
+    id: 1,
+    title: "JavaScript Basics",
+    category: "Frontend",
+    level: "Beginner",
+    hours: 10,
+    free: true,
+  },
+  {
+    id: 2,
+    title: "Advanced JavaScript",
+    category: "Frontend",
+    level: "Advanced",
+    hours: 18,
+    free: false,
+  },
+  {
+    id: 3,
+    title: "React Fundamentals",
+    category: "Frontend",
+    level: "Beginner",
+    hours: 14,
+    free: true,
+  },
+  {
+    id: 4,
+    title: "Node.js and Express",
+    category: "Backend",
+    level: "Intermediate",
+    hours: 20,
+    free: false,
+  },
+  {
+    id: 5,
+    title: "SQL for Beginners",
+    category: "Data",
+    level: "Beginner",
+    hours: 8,
+    free: true,
+  },
+  {
+    id: 6,
+    title: "Python for Data Analysis",
+    category: "Data",
+    level: "Intermediate",
+    hours: 16,
+    free: false,
+  },
+  {
+    id: 7,
+    title: "REST API Design",
+    category: "Backend",
+    level: "Intermediate",
+    hours: 9,
+    free: true,
+  },
+  {
+    id: 8,
+    title: "CSS Layouts",
+    category: "Frontend",
+    level: "Beginner",
+    hours: 6,
+    free: true,
+  },
 ];
 ```
 
@@ -86,11 +142,15 @@ export default function SearchableList({ courses }) {
 
   const q = query.trim().toLowerCase();
   const visible = courses
-    .filter((c) => c.title.toLowerCase().includes(q))            // search (empty q matches everything)
-    .filter((c) => category === ALL || c.category === category)  // category
-    .filter((c) => !freeOnly || c.free)                          // free only
-    .sort((a, b) =>                                              // filter() made a NEW array, so sorting it doesn't mutate props
-      sortBy === "hours" ? a.hours - b.hours : a.title.localeCompare(b.title)
+    .filter((c) => c.title.toLowerCase().includes(q)) // search (empty q matches everything)
+    .filter((c) => category === ALL || c.category === category) // category
+    .filter((c) => !freeOnly || c.free) // free only
+    .sort(
+      (
+        a,
+        b, // filter() made a NEW array, so sorting it doesn't mutate props
+      ) =>
+        sortBy === "hours" ? a.hours - b.hours : a.title.localeCompare(b.title),
     );
 
   const hasFilters = query !== "" || category !== ALL || freeOnly;
@@ -118,9 +178,14 @@ export default function SearchableList({ courses }) {
 
         <label>
           Category
-          <select value={category} onChange={(e) => setCategory(e.target.value)}>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
             {categories.map((c) => (
-              <option key={c} value={c}>{c}</option>
+              <option key={c} value={c}>
+                {c}
+              </option>
             ))}
           </select>
         </label>
@@ -158,7 +223,9 @@ export default function SearchableList({ courses }) {
           {visible.map((course) => (
             <li key={course.id}>
               <strong>{course.title}</strong>
-              <span>{course.category} · {course.level} · {course.hours}h</span>
+              <span>
+                {course.category} · {course.level} · {course.hours}h
+              </span>
               {course.free && <span className="badge">Free</span>}
             </li>
           ))}
@@ -189,29 +256,65 @@ export default function App() {
 ### `src/index.css` (optional)
 
 ```css
-body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; }
-.filters { display: flex; flex-wrap: wrap; gap: .75rem 1rem; align-items: end; margin-bottom: 1rem; }
-.filters label { display: grid; gap: .25rem; font-size: .9rem; }
-.course-list { list-style: none; padding: 0; display: grid; gap: .5rem; }
-.course-list li { display: grid; gap: .15rem; padding: .75rem 1rem; border: 1px solid #ddd; border-radius: 8px; }
-.course-list li span { color: #555; font-size: .9rem; }
-.badge { justify-self: start; background: #dcfce7; color: #166534; padding: .1rem .5rem; border-radius: 999px; font-size: .8rem; }
+body {
+  font-family: system-ui, sans-serif;
+  max-width: 720px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  align-items: end;
+  margin-bottom: 1rem;
+}
+.filters label {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+}
+.course-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+.course-list li {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+.course-list li span {
+  color: #555;
+  font-size: 0.9rem;
+}
+.badge {
+  justify-self: start;
+  background: #dcfce7;
+  color: #166534;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+}
 ```
 
 ## 5. Why this solution is written this way
 
-| Decision | Reason |
-|---|---|
-| `courses` comes in as a **prop** | The component is reusable: any list of objects with those fields works |
-| **No** `useState` for the filtered list, **no** `useEffect` | The filtered list is *derived data*; calculating it during render can't go out of sync |
-| `key={course.id}` | A **stable, unique** key (never the array index, see `09-interview-keys-rerendering.md`) |
-| `.filter(...)` **before** `.sort(...)` | `filter` returns a **new** array, so sorting doesn't mutate the `courses` prop. Calling `courses.sort(...)` directly **would** mutate the parent's array |
-| `query.trim().toLowerCase()` | Ignores case and stray spaces |
-| `q` empty -> `includes("")` is `true` | No special case needed for "no search" |
-| `new Set(...)` for categories | Removes duplicates, keeps first-seen order |
-| `<label>` wraps each control | Clicking the label focuses the control and screen readers announce it |
-| `role="status"` on the count | Screen readers announce the result count when it changes |
-| `disabled={!hasFilters}` | Derived from state, no extra state needed |
+| Decision                                                    | Reason                                                                                                                                                   |
+| ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `courses` comes in as a **prop**                            | The component is reusable: any list of objects with those fields works                                                                                   |
+| **No** `useState` for the filtered list, **no** `useEffect` | The filtered list is _derived data_; calculating it during render can't go out of sync                                                                   |
+| `key={course.id}`                                           | A **stable, unique** key (never the array index, see `09-interview-keys-rerendering.md`)                                                                 |
+| `.filter(...)` **before** `.sort(...)`                      | `filter` returns a **new** array, so sorting doesn't mutate the `courses` prop. Calling `courses.sort(...)` directly **would** mutate the parent's array |
+| `query.trim().toLowerCase()`                                | Ignores case and stray spaces                                                                                                                            |
+| `q` empty -> `includes("")` is `true`                       | No special case needed for "no search"                                                                                                                   |
+| `new Set(...)` for categories                               | Removes duplicates, keeps first-seen order                                                                                                               |
+| `<label>` wraps each control                                | Clicking the label focuses the control and screen readers announce it                                                                                    |
+| `role="status"` on the count                                | Screen readers announce the result count when it changes                                                                                                 |
+| `disabled={!hasFilters}`                                    | Derived from state, no extra state needed                                                                                                                |
 
 ## 6. Complexity
 
@@ -222,21 +325,21 @@ body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; 
 // Optional: only recompute when an input actually changes (e.g. when the parent re-renders for another reason)
 const visible = useMemo(
   () => courses.filter(/* ... */).sort(/* ... */),
-  [courses, q, category, freeOnly, sortBy]
+  [courses, q, category, freeOnly, sortBy],
 );
 ```
 
 ## 7. Edge cases to mention
 
-| Case | Behaviour |
-|---|---|
-| `courses` is empty | `Showing 0 of 0 courses` + empty message; the category dropdown only has "All" |
-| Search has only spaces | `trim()` makes it match everything; `hasFilters` is still `true` since `query !== ""` (acceptable; use `query.trim() !== ""` if you prefer) |
-| Uppercase / lowercase | Both sides lower-cased |
-| Special characters in the search | We use `includes`, not a regular expression, so `(`, `*`, `.` are safe |
-| Two courses with the same title | Sorted by title `localeCompare` returns 0, so their order stays as in the data (sort is stable) |
-| Data changes (parent passes a new list) | The component re-renders and recalculates; nothing to sync |
-| The selected category disappears from the new data | `category` still holds the old value, so nothing matches; reset it when `courses` changes or key the component by data version |
+| Case                                               | Behaviour                                                                                                                                   |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `courses` is empty                                 | `Showing 0 of 0 courses` + empty message; the category dropdown only has "All"                                                              |
+| Search has only spaces                             | `trim()` makes it match everything; `hasFilters` is still `true` since `query !== ""` (acceptable; use `query.trim() !== ""` if you prefer) |
+| Uppercase / lowercase                              | Both sides lower-cased                                                                                                                      |
+| Special characters in the search                   | We use `includes`, not a regular expression, so `(`, `*`, `.` are safe                                                                      |
+| Two courses with the same title                    | Sorted by title `localeCompare` returns 0, so their order stays as in the data (sort is stable)                                             |
+| Data changes (parent passes a new list)            | The component re-renders and recalculates; nothing to sync                                                                                  |
+| The selected category disappears from the new data | `category` still holds the old value, so nothing matches; reset it when `courses` changes or key the component by data version              |
 
 ## 8. Common mistakes
 
@@ -261,7 +364,7 @@ const FILTERS = ["all", "increments", "decrements"];
 export default function CounterWithFilters() {
   const [count, setCount] = useState(0);
   const [step, setStep] = useState(1);
-  const [history, setHistory] = useState([]);   // [{ id, type: "inc" | "dec", amount }]
+  const [history, setHistory] = useState([]); // [{ id, type: "inc" | "dec", amount }]
   const [filter, setFilter] = useState("all");
 
   function change(type) {
@@ -275,12 +378,14 @@ export default function CounterWithFilters() {
     setFilter("all");
   }
 
-  const incs = history.filter((h) => h.type === "inc").length;     // derived
-  const decs = history.filter((h) => h.type === "dec").length;     // derived
+  const incs = history.filter((h) => h.type === "inc").length; // derived
+  const decs = history.filter((h) => h.type === "dec").length; // derived
   const counts = { all: history.length, increments: incs, decrements: decs };
 
   const shown = history.filter(
-    (h) => filter === "all" || (filter === "increments" ? h.type === "inc" : h.type === "dec")
+    (h) =>
+      filter === "all" ||
+      (filter === "increments" ? h.type === "inc" : h.type === "dec"),
   );
 
   return (
@@ -289,20 +394,33 @@ export default function CounterWithFilters() {
 
       <label>
         Step
-        <select value={step} onChange={(e) => setStep(Number(e.target.value))}>   {/* Number(): e.target.value is a string! */}
+        <select value={step} onChange={(e) => setStep(Number(e.target.value))}>
+          {" "}
+          {/* Number(): e.target.value is a string! */}
           <option value={1}>1</option>
           <option value={5}>5</option>
           <option value={10}>10</option>
         </select>
       </label>
 
-      <button type="button" onClick={() => change("inc")}>+ {step}</button>
-      <button type="button" onClick={() => change("dec")}>- {step}</button>
-      <button type="button" onClick={reset}>Reset</button>
+      <button type="button" onClick={() => change("inc")}>
+        + {step}
+      </button>
+      <button type="button" onClick={() => change("dec")}>
+        - {step}
+      </button>
+      <button type="button" onClick={reset}>
+        Reset
+      </button>
 
       <div role="group" aria-label="History filter">
         {FILTERS.map((f) => (
-          <button key={f} type="button" aria-pressed={filter === f} onClick={() => setFilter(f)}>
+          <button
+            key={f}
+            type="button"
+            aria-pressed={filter === f}
+            onClick={() => setFilter(f)}
+          >
             {f} ({counts[f]})
           </button>
         ))}
@@ -313,7 +431,10 @@ export default function CounterWithFilters() {
       ) : (
         <ul>
           {shown.map((h) => (
-            <li key={h.id}>{h.type === "inc" ? "+" : "-"}{h.amount}</li>
+            <li key={h.id}>
+              {h.type === "inc" ? "+" : "-"}
+              {h.amount}
+            </li>
           ))}
         </ul>
       )}
@@ -361,9 +482,11 @@ function Highlight({ text, query }) {
 // usage: <strong><Highlight text={course.title} query={query} /></strong>
 
 // 2. Multi-select: state is an array; toggle immutably
-const [selected, setSelected] = useState([]);                       // e.g. ["Frontend", "Data"]
+const [selected, setSelected] = useState([]); // e.g. ["Frontend", "Data"]
 const toggleCategory = (c) =>
-  setSelected((prev) => (prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]));
+  setSelected((prev) =>
+    prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c],
+  );
 // filter: .filter((c) => selected.length === 0 || selected.includes(c.category))
 
 // 3. Radio level filter
@@ -385,8 +508,11 @@ const q = debouncedQuery.trim().toLowerCase();
 const PAGE_SIZE = 3;
 const [page, setPage] = useState(1);
 const totalPages = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
-const safePage = Math.min(page, totalPages);                       // clamp, in case the list shrank
-const pageItems = visible.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+const safePage = Math.min(page, totalPages); // clamp, in case the list shrank
+const pageItems = visible.slice(
+  (safePage - 1) * PAGE_SIZE,
+  safePage * PAGE_SIZE,
+);
 // call setPage(1) inside the handlers that change query/category/freeOnly
 
 // 7. Persist

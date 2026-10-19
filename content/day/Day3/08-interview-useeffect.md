@@ -10,24 +10,32 @@
 ## 2. The dependency array
 
 ```jsx
-useEffect(() => { /* A */ });                // runs after EVERY render
-useEffect(() => { /* B */ }, []);            // runs once after the first render (and cleans up on unmount)
-useEffect(() => { /* C */ }, [a, b]);        // runs after the first render, and after any render where a or b changed
+useEffect(() => {
+  /* A */
+}); // runs after EVERY render
+useEffect(() => {
+  /* B */
+}, []); // runs once after the first render (and cleans up on unmount)
+useEffect(() => {
+  /* C */
+}, [a, b]); // runs after the first render, and after any render where a or b changed
 ```
 
-| Deps | When the effect runs | Typical use |
-|---|---|---|
-| none | after every render | rare (logging, measuring) |
-| `[]` | after mount only | one-time subscription, initial setup |
-| `[a, b]` | on mount + when `a` or `b` changes | fetch for an `id`, sync a title |
+| Deps     | When the effect runs               | Typical use                          |
+| -------- | ---------------------------------- | ------------------------------------ |
+| none     | after every render                 | rare (logging, measuring)            |
+| `[]`     | after mount only                   | one-time subscription, initial setup |
+| `[a, b]` | on mount + when `a` or `b` changes | fetch for an `id`, sync a title      |
 
 **Rule:** list **every reactive value** (props, state, values derived from them) that the effect **reads**. Don't "lie" to silence the linter; fix the effect instead (`eslint-plugin-react-hooks` flags it).
 
 Dependencies are compared with `Object.is`. A new object/array/function created **on every render** looks "changed" each time:
 
 ```jsx
-const options = { page: 1 };                       // new object every render
-useEffect(() => { load(options); }, [options]);    // runs after EVERY render
+const options = { page: 1 }; // new object every render
+useEffect(() => {
+  load(options);
+}, [options]); // runs after EVERY render
 ```
 
 Fix: depend on primitives (`[page]`), move the object outside the component, or `useMemo` it.
@@ -55,9 +63,11 @@ Key facts:
 
 ```jsx
 useEffect(() => {
-  function onResize() { setWidth(window.innerWidth); }
-  window.addEventListener("resize", onResize);        // subscribe
-  return () => window.removeEventListener("resize", onResize);   // cleanup: unsubscribe
+  function onResize() {
+    setWidth(window.innerWidth);
+  }
+  window.addEventListener("resize", onResize); // subscribe
+  return () => window.removeEventListener("resize", onResize); // cleanup: unsubscribe
 }, []);
 ```
 
@@ -79,17 +89,20 @@ function User({ id }) {
 
     fetch(`/api/users/${id}`, { signal: controller.signal })
       .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);    // fetch doesn't reject on 404/500 (Day 2)
+        if (!res.ok) throw new Error(`HTTP ${res.status}`); // fetch doesn't reject on 404/500 (Day 2)
         return res.json();
       })
-      .then((data) => { setUser(data); setLoading(false); })
+      .then((data) => {
+        setUser(data);
+        setLoading(false);
+      })
       .catch((err) => {
-        if (err.name === "AbortError") return;                 // our own cancellation, ignore
+        if (err.name === "AbortError") return; // our own cancellation, ignore
         setError(err.message);
         setLoading(false);
       });
 
-    return () => controller.abort();                           // cancel when `id` changes or on unmount
+    return () => controller.abort(); // cancel when `id` changes or on unmount
   }, [id]);
 
   if (loading) return <p>Loading...</p>;
@@ -105,8 +118,12 @@ A version for APIs that can't be aborted uses an **ignore flag**:
 ```jsx
 useEffect(() => {
   let ignore = false;
-  load(id).then((data) => { if (!ignore) setUser(data); });
-  return () => { ignore = true; };
+  load(id).then((data) => {
+    if (!ignore) setUser(data);
+  });
+  return () => {
+    ignore = true;
+  };
 }, [id]);
 ```
 
@@ -115,7 +132,9 @@ In real projects, a library such as **TanStack Query** or **SWR** (or a framewor
 ## 6. Strict Mode: the effect runs twice in development
 
 ```jsx
-<StrictMode><App /></StrictMode>
+<StrictMode>
+  <App />
+</StrictMode>
 ```
 
 Sequence in development for an effect with `[]`: **effect -> cleanup -> effect**. React is **testing that your cleanup correctly undoes your setup**. It does not happen in production.
@@ -126,18 +145,20 @@ If the double run causes a visible bug (two subscriptions, two analytics events)
 
 The most important modern advice: **many effects shouldn't exist.**
 
-| Situation | Wrong | Right |
-|---|---|---|
-| Derived data (filtered list, full name, total) | `useEffect` + `setState` | Calculate it **during render** |
-| Reacting to a **click / submit** | effect watching a state flag | Do it in the **event handler** |
-| Reset state when a prop changes | `useEffect(() => setX(init), [id])` | Give the component a **`key={id}`** |
-| Expensive calculation | effect + state | `useMemo` (or plain calculation) |
-| Notify parent of a change | effect calling `onChange` | Call `onChange` in the **handler** that changed it |
+| Situation                                      | Wrong                               | Right                                              |
+| ---------------------------------------------- | ----------------------------------- | -------------------------------------------------- |
+| Derived data (filtered list, full name, total) | `useEffect` + `setState`            | Calculate it **during render**                     |
+| Reacting to a **click / submit**               | effect watching a state flag        | Do it in the **event handler**                     |
+| Reset state when a prop changes                | `useEffect(() => setX(init), [id])` | Give the component a **`key={id}`**                |
+| Expensive calculation                          | effect + state                      | `useMemo` (or plain calculation)                   |
+| Notify parent of a change                      | effect calling `onChange`           | Call `onChange` in the **handler** that changed it |
 
 ```jsx
 // BAD: extra render + sync bug risk
 const [fullName, setFullName] = useState("");
-useEffect(() => { setFullName(first + " " + last); }, [first, last]);
+useEffect(() => {
+  setFullName(first + " " + last);
+}, [first, last]);
 
 // GOOD
 const fullName = first + " " + last;
@@ -153,7 +174,9 @@ Same signature as `useEffect`, but runs **synchronously after DOM changes and be
 
 1. **No dependency array** with a state update inside: infinite loop. (In development React logs `Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.`, but it does not stop the loop for you.)
    ```jsx
-   useEffect(() => { setCount(count + 1); });   // renders, effect, setState, renders, ...
+   useEffect(() => {
+     setCount(count + 1);
+   }); // renders, effect, setState, renders, ...
    ```
 2. **Object/array/function dependency created in render** -> runs every render.
 3. **Missing dependencies** -> stale values (the effect uses an old `count`, `props`, etc.).
@@ -186,42 +209,71 @@ If it happens **because of a user action**, put it in the **handler**. If it hap
 ## 11. Predict the output
 
 **Q1** Which logs appear when the component first mounts, and after clicking "A" once, then "B" once?
+
 ```jsx
 function C() {
   const [a, setA] = useState(0);
   const [b, setB] = useState(0);
-  useEffect(() => { console.log("every"); });
-  useEffect(() => { console.log("once"); }, []);
-  useEffect(() => { console.log("a=" + a); }, [a]);
-  return (<><button onClick={() => setA(a + 1)}>A</button><button onClick={() => setB(b + 1)}>B</button></>);
+  useEffect(() => {
+    console.log("every");
+  });
+  useEffect(() => {
+    console.log("once");
+  }, []);
+  useEffect(() => {
+    console.log("a=" + a);
+  }, [a]);
+  return (
+    <>
+      <button onClick={() => setA(a + 1)}>A</button>
+      <button onClick={() => setB(b + 1)}>B</button>
+    </>
+  );
 }
 ```
 
 **Q2** Sequence of logs for mount, one click, and unmount?
+
 ```jsx
 function Child() {
   console.log("child render");
-  useEffect(() => { console.log("child effect"); return () => console.log("child cleanup"); }, []);
+  useEffect(() => {
+    console.log("child effect");
+    return () => console.log("child cleanup");
+  }, []);
   return null;
 }
 function Parent() {
   console.log("parent render");
   const [n, setN] = useState(0);
-  useEffect(() => { console.log("parent effect " + n); return () => console.log("parent cleanup " + n); }, [n]);
-  return (<><button onClick={() => setN(n + 1)}>x</button><Child /></>);
+  useEffect(() => {
+    console.log("parent effect " + n);
+    return () => console.log("parent cleanup " + n);
+  }, [n]);
+  return (
+    <>
+      <button onClick={() => setN(n + 1)}>x</button>
+      <Child />
+    </>
+  );
 }
 ```
 
 **Q3** What is logged in development with `<StrictMode>` when this mounts?
+
 ```jsx
 function C() {
   console.log("render");
-  useEffect(() => { console.log("effect"); return () => console.log("cleanup"); }, []);
+  useEffect(() => {
+    console.log("effect");
+    return () => console.log("cleanup");
+  }, []);
   return null;
 }
 ```
 
 **Q4** What goes wrong here?
+
 ```jsx
 useEffect(async () => {
   const res = await fetch(url);

@@ -9,25 +9,25 @@ The project has two parts:
 
 ## 1. What makes a component "reusable"?
 
-| Principle | In this project |
-|---|---|
-| **Configured by props**, not hard-coded | `items`, `allowMultiple`, `className` |
-| **Works with any content** | each item's `content` is any JSX (text, forms, other components) |
-| **Controlled *and* uncontrolled** | the parent can own the open state (`openIds` + `onChange`) **or** let the component manage it (`defaultOpenIds`) |
-| **Reports changes upward** | `onChange(nextOpenIds)` |
-| **No surprises** | doesn't mutate props, doesn't need an effect, has stable keys |
-| **Accessible by default** | real `<button>`s, `aria-expanded`, `aria-controls`, `role="region"` |
+| Principle                               | In this project                                                                                                  |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| **Configured by props**, not hard-coded | `items`, `allowMultiple`, `className`                                                                            |
+| **Works with any content**              | each item's `content` is any JSX (text, forms, other components)                                                 |
+| **Controlled _and_ uncontrolled**       | the parent can own the open state (`openIds` + `onChange`) **or** let the component manage it (`defaultOpenIds`) |
+| **Reports changes upward**              | `onChange(nextOpenIds)`                                                                                          |
+| **No surprises**                        | doesn't mutate props, doesn't need an effect, has stable keys                                                    |
+| **Accessible by default**               | real `<button>`s, `aria-expanded`, `aria-controls`, `role="region"`                                              |
 
 ## 2. The API (props)
 
-| Prop | Type | Default | Meaning |
-|---|---|---|---|
-| `items` | `{ id, title, content }[]` | required | The sections. `id` must be **unique and stable** |
-| `allowMultiple` | `boolean` | `false` | If `false`, opening one section closes the others |
-| `openIds` | `id[]` | `undefined` | **Controlled** mode: the parent decides what is open |
-| `defaultOpenIds` | `id[]` | `[]` | **Uncontrolled** mode: the initial open sections |
-| `onChange` | `(nextOpenIds) => void` | none | Called with the new list of open ids whenever the user toggles |
-| `className` | `string` | `""` | Extra class for styling |
+| Prop             | Type                       | Default     | Meaning                                                        |
+| ---------------- | -------------------------- | ----------- | -------------------------------------------------------------- |
+| `items`          | `{ id, title, content }[]` | required    | The sections. `id` must be **unique and stable**               |
+| `allowMultiple`  | `boolean`                  | `false`     | If `false`, opening one section closes the others              |
+| `openIds`        | `id[]`                     | `undefined` | **Controlled** mode: the parent decides what is open           |
+| `defaultOpenIds` | `id[]`                     | `[]`        | **Uncontrolled** mode: the initial open sections               |
+| `onChange`       | `(nextOpenIds) => void`    | none        | Called with the new list of open ids whenever the user toggles |
+| `className`      | `string`                   | `""`        | Extra class for styling                                        |
 
 **Controlled vs uncontrolled rule:** if `openIds` is provided, the component is controlled and shows exactly that. Otherwise it keeps its own state starting from `defaultOpenIds`. (This is the same pattern as `<input value>` vs `<input defaultValue>` in `05-controlled-components.md`.)
 
@@ -101,31 +101,31 @@ export default function Accordion({
   onChange,
   className = "",
 }) {
-  const baseId = useId();                                    // unique prefix for aria ids, SSR-safe
+  const baseId = useId(); // unique prefix for aria ids, SSR-safe
 
   // Controlled if the parent passes `openIds`; otherwise we keep our own state.
   const isControlled = controlledOpenIds !== undefined;
   const [internalOpenIds, setInternalOpenIds] = useState(
-    () => (allowMultiple ? defaultOpenIds : defaultOpenIds.slice(0, 1))   // lazy init, respects single-open mode
+    () => (allowMultiple ? defaultOpenIds : defaultOpenIds.slice(0, 1)), // lazy init, respects single-open mode
   );
-  const openIds = isControlled ? controlledOpenIds : internalOpenIds;     // ONE source of truth per mode
+  const openIds = isControlled ? controlledOpenIds : internalOpenIds; // ONE source of truth per mode
 
   function toggle(id) {
     const isOpen = openIds.includes(id);
     let next;
     if (isOpen) {
-      next = openIds.filter((x) => x !== id);                // close it
+      next = openIds.filter((x) => x !== id); // close it
     } else {
-      next = allowMultiple ? [...openIds, id] : [id];        // open it (and close the rest in single mode)
+      next = allowMultiple ? [...openIds, id] : [id]; // open it (and close the rest in single mode)
     }
-    if (!isControlled) setInternalOpenIds(next);             // controlled mode: the parent updates `openIds`
-    onChange?.(next);                                        // always report the change upward
+    if (!isControlled) setInternalOpenIds(next); // controlled mode: the parent updates `openIds`
+    onChange?.(next); // always report the change upward
   }
 
   return (
     <div className={className}>
       {items.map((item) => {
-        const isOpen = openIds.includes(item.id);            // derived, never stored
+        const isOpen = openIds.includes(item.id); // derived, never stored
         const buttonId = `${baseId}-button-${item.id}`;
         const panelId = `${baseId}-panel-${item.id}`;
 
@@ -142,7 +142,12 @@ export default function Accordion({
                 {item.title}
               </button>
             </h3>
-            <div id={panelId} role="region" aria-labelledby={buttonId} hidden={!isOpen}>
+            <div
+              id={panelId}
+              role="region"
+              aria-labelledby={buttonId}
+              hidden={!isOpen}
+            >
               {item.content}
             </div>
           </div>
@@ -174,15 +179,39 @@ function Notes({ label }) {
 }
 
 const FAQ = [
-  { id: "free", title: "Are there free courses?", content: <p>Yes, filter the course list by "Free only".</p> },
-  { id: "cert", title: "Do I get a certificate?", content: <p>Every completed course includes one.</p> },
-  { id: "time", title: "How long does a course take?", content: <p>Between 6 and 20 hours.</p> },
+  {
+    id: "free",
+    title: "Are there free courses?",
+    content: <p>Yes, filter the course list by "Free only".</p>,
+  },
+  {
+    id: "cert",
+    title: "Do I get a certificate?",
+    content: <p>Every completed course includes one.</p>,
+  },
+  {
+    id: "time",
+    title: "How long does a course take?",
+    content: <p>Between 6 and 20 hours.</p>,
+  },
 ];
 
 const MODULES = [
-  { id: "m1", title: "Module 1: JavaScript", content: <Notes label="Notes for module 1" /> },
-  { id: "m2", title: "Module 2: React", content: <Notes label="Notes for module 2" /> },
-  { id: "m3", title: "Module 3: APIs", content: <Notes label="Notes for module 3" /> },
+  {
+    id: "m1",
+    title: "Module 1: JavaScript",
+    content: <Notes label="Notes for module 1" />,
+  },
+  {
+    id: "m2",
+    title: "Module 2: React",
+    content: <Notes label="Notes for module 2" />,
+  },
+  {
+    id: "m3",
+    title: "Module 3: APIs",
+    content: <Notes label="Notes for module 3" />,
+  },
 ];
 
 export default function App() {
@@ -201,9 +230,18 @@ export default function App() {
 
       <h2>Curriculum (controlled, several open)</h2>
       <p>
-        <button type="button" onClick={() => setOpenModules(MODULES.map((m) => m.id))}>Expand all</button>
-        <button type="button" onClick={() => setOpenModules([])}>Collapse all</button>
-        <button type="button" onClick={() => setReversed(!reversed)}>Reverse order</button>
+        <button
+          type="button"
+          onClick={() => setOpenModules(MODULES.map((m) => m.id))}
+        >
+          Expand all
+        </button>
+        <button type="button" onClick={() => setOpenModules([])}>
+          Collapse all
+        </button>
+        <button type="button" onClick={() => setReversed(!reversed)}>
+          Reverse order
+        </button>
       </p>
       <Accordion
         className="accordion"
@@ -220,11 +258,32 @@ export default function App() {
 ### Append to `src/index.css`
 
 ```css
-.accordion { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin-bottom: 1.5rem; }
-.accordion h3 { margin: 0; }
-.accordion h3 button { width: 100%; text-align: left; padding: .75rem 1rem; background: #f8fafc; border: 0; border-bottom: 1px solid #e5e7eb; cursor: pointer; font: inherit; }
-.accordion h3 button[aria-expanded="true"] { background: #eef2ff; font-weight: 600; }
-.accordion [role="region"] { padding: .75rem 1rem; }
+.accordion {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+.accordion h3 {
+  margin: 0;
+}
+.accordion h3 button {
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  background: #f8fafc;
+  border: 0;
+  border-bottom: 1px solid #e5e7eb;
+  cursor: pointer;
+  font: inherit;
+}
+.accordion h3 button[aria-expanded="true"] {
+  background: #eef2ff;
+  font-weight: 600;
+}
+.accordion [role="region"] {
+  padding: 0.75rem 1rem;
+}
 ```
 
 > **Gotcha:** the `hidden` attribute hides an element with the browser's default `display: none`. If you ever set `display: flex/grid/block` on the panel in your CSS, that **overrides** `hidden` and the panel stays visible. Put layout styles on an inner element, or add `[hidden] { display: none; }`.
@@ -282,23 +341,42 @@ test("single-open mode: opening one closes the other", async () => {
   const user = userEvent.setup();
   render(<Accordion items={items} defaultOpenIds={["a"]} />);
 
-  expect(screen.getByRole("button", { name: "Alpha" })).toHaveAttribute("aria-expanded", "true");
+  expect(screen.getByRole("button", { name: "Alpha" })).toHaveAttribute(
+    "aria-expanded",
+    "true",
+  );
   await user.click(screen.getByRole("button", { name: "Beta" }));
 
-  expect(screen.getByRole("button", { name: "Alpha" })).toHaveAttribute("aria-expanded", "false");
-  expect(screen.getByRole("button", { name: "Beta" })).toHaveAttribute("aria-expanded", "true");
+  expect(screen.getByRole("button", { name: "Alpha" })).toHaveAttribute(
+    "aria-expanded",
+    "false",
+  );
+  expect(screen.getByRole("button", { name: "Beta" })).toHaveAttribute(
+    "aria-expanded",
+    "true",
+  );
   expect(screen.getByRole("region", { name: "Beta" })).toBeVisible();
 });
 
 test("controlled mode: the parent decides, onChange reports the next ids", async () => {
   const user = userEvent.setup();
   const onChange = vi.fn();
-  render(<Accordion items={items} allowMultiple openIds={["a"]} onChange={onChange} />);
+  render(
+    <Accordion
+      items={items}
+      allowMultiple
+      openIds={["a"]}
+      onChange={onChange}
+    />,
+  );
 
   await user.click(screen.getByRole("button", { name: "Beta" }));
   expect(onChange).toHaveBeenCalledWith(["a", "b"]);
   // the parent did not update openIds, so nothing changes on screen
-  expect(screen.getByRole("button", { name: "Beta" })).toHaveAttribute("aria-expanded", "false");
+  expect(screen.getByRole("button", { name: "Beta" })).toHaveAttribute(
+    "aria-expanded",
+    "false",
+  );
 });
 
 test("a stateful parent can collapse everything", async () => {
@@ -308,13 +386,21 @@ test("a stateful parent can collapse everything", async () => {
     return (
       <>
         <button onClick={() => setOpen([])}>collapse all</button>
-        <Accordion items={items} allowMultiple openIds={open} onChange={setOpen} />
+        <Accordion
+          items={items}
+          allowMultiple
+          openIds={open}
+          onChange={setOpen}
+        />
       </>
     );
   }
   render(<Parent />);
   await user.click(screen.getByText("collapse all"));
-  expect(screen.getByRole("button", { name: "Alpha" })).toHaveAttribute("aria-expanded", "false");
+  expect(screen.getByRole("button", { name: "Alpha" })).toHaveAttribute(
+    "aria-expanded",
+    "false",
+  );
 });
 ```
 
@@ -361,7 +447,11 @@ export default function Accordion({
               {item.title}
             </button>
           </h3>
-          <div role="region" aria-label={item.title} hidden={!openIds.includes(item.id)}>
+          <div
+            role="region"
+            aria-label={item.title}
+            hidden={!openIds.includes(item.id)}
+          >
             {item.content}
           </div>
         </div>
@@ -375,12 +465,12 @@ export default function Accordion({
 
 For each bug write down: **(1)** what you saw, **(2)** which Day 3 concept explains it, **(3)** your fix.
 
-| # | What you'll see | Which file explains it? |
-|---|---|---|
-| 1 | The page **crashes on load**: `Too many re-renders. React limits the number of renders to prevent an infinite loop.` | `01-props.md` (callback props), `03-rendering.md` (render must be pure) |
-| 2 | After fixing #1: **clicking a header does nothing** (arrow stays collapsed, panel stays hidden) | `02-state.md` (never mutate state), `07-interview-usestate.md` |
-| 3 | After fixing #2: the parent's **Collapse all / Expand all** buttons do nothing | `05-controlled-components.md` (controlled vs uncontrolled), `01-props.md` (copying a prop into state) |
-| 4 | After fixing #3: open **Module 1 and 3**, type in each, click **Reverse order**: the typed text is now under the **wrong module** | `09-interview-keys-rerendering.md` (index keys) |
+| #   | What you'll see                                                                                                                   | Which file explains it?                                                                               |
+| --- | --------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| 1   | The page **crashes on load**: `Too many re-renders. React limits the number of renders to prevent an infinite loop.`              | `01-props.md` (callback props), `03-rendering.md` (render must be pure)                               |
+| 2   | After fixing #1: **clicking a header does nothing** (arrow stays collapsed, panel stays hidden)                                   | `02-state.md` (never mutate state), `07-interview-usestate.md`                                        |
+| 3   | After fixing #2: the parent's **Collapse all / Expand all** buttons do nothing                                                    | `05-controlled-components.md` (controlled vs uncontrolled), `01-props.md` (copying a prop into state) |
+| 4   | After fixing #3: open **Module 1 and 3**, type in each, click **Reverse order**: the typed text is now under the **wrong module** | `09-interview-keys-rerendering.md` (index keys)                                                       |
 
 (Also notice `allowMultiple` is **never used** in the buggy file, so single-open mode is missing. That's a feature gap that your rewrite of `toggle` closes at the same time as bug 2.)
 
@@ -401,7 +491,9 @@ function toggle(id) {
   const isOpen = openIds.includes(id);
   const next = isOpen
     ? openIds.filter((x) => x !== id)
-    : allowMultiple ? [...openIds, id] : [id];
+    : allowMultiple
+      ? [...openIds, id]
+      : [id];
   setOpenIds(next);
   onChange?.(next);
 }
@@ -432,7 +524,7 @@ The **complete fixed version** is the Part A solution above (it also adds `useId
 4. **Persist** the open state with `useLocalStorage` (from `04-hooks.md`).
 5. **Animate** the open/close with CSS (`grid-template-rows: 0fr` to `1fr`).
 6. **Warn in development** if two items share the same `id`.
-7. **Write 5 sentences** in your own words: *"Why is this component controlled **and** uncontrolled, and what does `key` do for the panels?"*
+7. **Write 5 sentences** in your own words: _"Why is this component controlled **and** uncontrolled, and what does `key` do for the panels?"_
 
 ### Applying it to your real project
 

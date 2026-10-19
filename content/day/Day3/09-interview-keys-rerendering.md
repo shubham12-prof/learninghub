@@ -6,9 +6,11 @@
 ## 1. The 30-second answers (say these out loud)
 
 **Keys**
+
 > "A key is a special prop that gives each item in a list a stable, unique identity among its siblings. React uses it during reconciliation to match elements between renders, so it can reorder, add or remove the right items and keep each item's state with the right element. I use a stable id from the data, not the array index, because with an index the identity follows the position: when the list is reordered, filtered or an item is removed, state like input text ends up on the wrong row."
 
 **Re-rendering**
+
 > "A component re-renders when its own state changes, when its parent re-renders, or when a context it uses changes. Re-rendering means React calls the function again and diffs the result, and only the differences reach the DOM. A child re-renders with its parent even if its props are the same, unless it's wrapped in `React.memo` and the props are referentially equal. I don't optimise until I measure; when needed I move state down, pass children, or use `memo` with `useCallback` and `useMemo`."
 
 ## 2. Keys in depth
@@ -16,25 +18,33 @@
 ### 2.1 The warning you've seen
 
 ```jsx
-<ul>{names.map((n) => <li>{n}</li>)}</ul>
+<ul>
+  {names.map((n) => (
+    <li>{n}</li>
+  ))}
+</ul>
 ```
 
 > Warning: Each child in a list should have a unique "key" prop.
 
 ```jsx
-<ul>{names.map((n) => <li key={n}>{n}</li>)}</ul>
+<ul>
+  {names.map((n) => (
+    <li key={n}>{n}</li>
+  ))}
+</ul>
 ```
 
 ### 2.2 The rules
 
-| Rule | Why |
-|---|---|
-| **Unique among siblings** (not globally) | Two lists can reuse the same keys |
-| **Stable**: the same item has the same key on every render | Identity must survive re-renders |
+| Rule                                                                                                | Why                                                                                                     |
+| --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| **Unique among siblings** (not globally)                                                            | Two lists can reuse the same keys                                                                       |
+| **Stable**: the same item has the same key on every render                                          | Identity must survive re-renders                                                                        |
 | **Not generated during render** (`Math.random()`, `Date.now()`, `crypto.randomUUID()` inside `map`) | A new key every render means React **destroys and recreates** every item (state lost, focus lost, slow) |
-| **Put it on the outermost element returned in `map`** | `key` belongs to the item React compares |
-| Use `<Fragment key={id}>` when you need a key on a fragment | The short `<>...</>` can't take a key |
-| `key` isn't passed as a prop | You can't read `props.key`; pass the id separately if needed |
+| **Put it on the outermost element returned in `map`**                                               | `key` belongs to the item React compares                                                                |
+| Use `<Fragment key={id}>` when you need a key on a fragment                                         | The short `<>...</>` can't take a key                                                                   |
+| `key` isn't passed as a prop                                                                        | You can't read `props.key`; pass the id separately if needed                                            |
 
 Where do good keys come from? **Database IDs**, or IDs you generate **once when you create the item** (`crypto.randomUUID()` in the "add" handler, not in render).
 
@@ -42,8 +52,12 @@ Where do good keys come from? **Database IDs**, or IDs you generate **once when 
 
 ```jsx
 function Row({ label }) {
-  const [text, setText] = useState("");                 // each row has its own state
-  return <li>{label} <input value={text} onChange={(e) => setText(e.target.value)} /></li>;
+  const [text, setText] = useState(""); // each row has its own state
+  return (
+    <li>
+      {label} <input value={text} onChange={(e) => setText(e.target.value)} />
+    </li>
+  );
 }
 
 function List() {
@@ -51,7 +65,12 @@ function List() {
   return (
     <>
       <button onClick={() => setItems(items.slice(1))}>remove first</button>
-      <ul>{items.map((it, i) => <Row key={i} label={it} />)}</ul>      {/* key = index */}
+      <ul>
+        {items.map((it, i) => (
+          <Row key={i} label={it} />
+        ))}
+      </ul>{" "}
+      {/* key = index */}
     </>
   );
 }
@@ -59,10 +78,10 @@ function List() {
 
 Type `typed-in-A` into row **A**, then click **remove first**.
 
-| Key | Result after removing A |
-|---|---|
+| Key           | Result after removing A                                                                                                                                      |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `key={index}` | Row **B** shows the text `typed-in-A` (bug!). Key 0 is "the same component" as before, so React reuses it, keeps its state and just changes the `label` prop |
-| `key={id}` | Rows B and C are empty, as expected. React sees that item "A" is gone and removes **its** component with its state |
+| `key={id}`    | Rows B and C are empty, as expected. React sees that item "A" is gone and removes **its** component with its state                                           |
 
 **Index keys are fine only when the list is static**: never reordered, filtered, inserted into, or removed from, and items have no state/inputs.
 
@@ -76,7 +95,8 @@ function Host() {
   return (
     <>
       <button onClick={() => setId(id + 1)}>next user</button>
-      <Profile key={id} id={id} />        {/* new key => fresh state, no useEffect needed to reset */}
+      <Profile key={id} id={id} />{" "}
+      {/* new key => fresh state, no useEffect needed to reset */}
     </>
   );
 }
@@ -85,7 +105,9 @@ function Host() {
 ### 2.5 Random keys
 
 ```jsx
-{items.map((it) => <Row key={Math.random()} label={it} />)}   // every render: all rows unmounted and remounted
+{
+  items.map((it) => <Row key={Math.random()} label={it} />);
+} // every render: all rows unmounted and remounted
 ```
 
 Symptom: typing in a row's input **loses its text** whenever the parent re-renders, and focus jumps away.
@@ -112,14 +134,14 @@ Props "changing" isn't a separate cause: new props only happen **because** the p
 
 Measured behaviour:
 
-| Setup (parent re-renders once) | Child renders |
-|---|---|
-| Plain child | **re-renders** |
-| `memo` child, no props | skipped |
-| `memo` child, inline arrow function prop (`onClick={() => {}}`) | **re-renders** (new function each time) |
-| `memo` child, function from `useCallback(fn, [])` | skipped |
-| `memo` child, object from `useMemo(() => ({...}), [])` | skipped |
-| Child passed as `children` from a component that didn't re-render | skipped |
+| Setup (parent re-renders once)                                    | Child renders                           |
+| ----------------------------------------------------------------- | --------------------------------------- |
+| Plain child                                                       | **re-renders**                          |
+| `memo` child, no props                                            | skipped                                 |
+| `memo` child, inline arrow function prop (`onClick={() => {}}`)   | **re-renders** (new function each time) |
+| `memo` child, function from `useCallback(fn, [])`                 | skipped                                 |
+| `memo` child, object from `useMemo(() => ({...}), [])`            | skipped                                 |
+| Child passed as `children` from a component that didn't re-render | skipped                                 |
 
 ### 3.4 Context re-renders
 
@@ -173,28 +195,53 @@ React DevTools **Profiler** ("Highlight updates when components render", and "Wh
 **Q1** Type `typed-in-A` in row A (see section 2.3), then click "remove first". What do the remaining two rows contain with `key={i}`? With `key={it}`?
 
 **Q2** What happens to the text typed in the `Reset` input after clicking "next"?
+
 ```jsx
 function Reset() {
   const [t, setT] = useState("");
-  return <input aria-label="r" value={t} onChange={(e) => setT(e.target.value)} />;
+  return (
+    <input aria-label="r" value={t} onChange={(e) => setT(e.target.value)} />
+  );
 }
 function Host() {
   const [id, setId] = useState(1);
-  return (<><button onClick={() => setId(id + 1)}>next</button><Reset key={id} /></>);
+  return (
+    <>
+      <button onClick={() => setId(id + 1)}>next</button>
+      <Reset key={id} />
+    </>
+  );
 }
 ```
 
 **Q3** What does this code print as a warning, and how do you fix it?
+
 ```jsx
-<ul>{["a", "b"].map((x) => <li>{x}</li>)}</ul>
+<ul>
+  {["a", "b"].map((x) => (
+    <li>{x}</li>
+  ))}
+</ul>
 ```
 
 **Q4** How many times does each child render in total (including the first render) after **two** clicks on the parent's button?
+
 ```jsx
-let r1 = 0, r2 = 0, r3 = 0;
-const C1 = memo(({ onClick }) => { r1++; return <i onClick={onClick} />; });
-const C2 = memo(({ onClick }) => { r2++; return <i onClick={onClick} />; });
-const C3 = memo(({ opts }) => { r3++; return <i />; });
+let r1 = 0,
+  r2 = 0,
+  r3 = 0;
+const C1 = memo(({ onClick }) => {
+  r1++;
+  return <i onClick={onClick} />;
+});
+const C2 = memo(({ onClick }) => {
+  r2++;
+  return <i onClick={onClick} />;
+});
+const C3 = memo(({ opts }) => {
+  r3++;
+  return <i />;
+});
 
 function P() {
   const [n, setN] = useState(0);
