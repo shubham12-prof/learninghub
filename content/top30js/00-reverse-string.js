@@ -50,3 +50,26 @@ console.log(reverseStringTwoPointers("world")); // "dlrow"
   need a new array/string to build the result.
 */
 
+
+// -----------------------------------------------------------------
+// REVERSE STRING BY WORDS
+// -----------------------------------------------------------------
+
+function reverseWords(str) {
+  let words = str.split(" ");
+
+  let result = words.map((word) => {
+    let reversed = "";
+
+    for (let i = word.length - 1; i >= 0; i--) {
+      reversed += word[i];
+    }
+
+    return reversed;
+  });
+
+  return result.join(" ");
+}
+
+console.log(reverseWords("i love js"));
+// Output: i evol sj
