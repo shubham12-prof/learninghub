@@ -36,15 +36,15 @@ app/
 
 ### Special files
 
-| File | Purpose |
-|---|---|
-| `page.tsx` | the UI of a route (makes the URL public) |
-| `layout.tsx` | UI shared by a segment and everything below it; **keeps state and doesn't re-render on navigation** |
-| `template.tsx` | like a layout but **re-mounts** on every navigation |
-| `loading.tsx` | instant loading UI (a Suspense boundary around the page) |
-| `error.tsx` | error boundary for the segment (`"use client"`, gets `error` and `reset`) |
-| `not-found.tsx` | UI for `notFound()` / unknown URLs |
-| `route.ts` | an HTTP endpoint (GET, POST, ...) instead of UI |
+| File              | Purpose                                                                                                                     |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `page.tsx`        | the UI of a route (makes the URL public)                                                                                    |
+| `layout.tsx`      | UI shared by a segment and everything below it; **keeps state and doesn't re-render on navigation**                         |
+| `template.tsx`    | like a layout but **re-mounts** on every navigation                                                                         |
+| `loading.tsx`     | instant loading UI (a Suspense boundary around the page)                                                                    |
+| `error.tsx`       | error boundary for the segment (`"use client"`, gets `error` and `reset`)                                                   |
+| `not-found.tsx`   | UI for `notFound()` / unknown URLs                                                                                          |
+| `route.ts`        | an HTTP endpoint (GET, POST, ...) instead of UI                                                                             |
 | `proxy.ts` (root) | runs before a request is completed (redirects, rewrites, auth checks). **Next.js 16 renamed `middleware.ts` to `proxy.ts`** |
 
 ## 4. Layouts
@@ -69,10 +69,10 @@ Layouts **nest**: `app/courses/layout.tsx` wraps every page under `/courses` and
 
 ## 5. Dynamic routes
 
-| Folder | Matches | `params` |
-|---|---|---|
-| `[slug]` | `/courses/react` | `{ slug: "react" }` |
-| `[...slug]` (catch-all) | `/docs/a/b/c` | `{ slug: ["a", "b", "c"] }` |
+| Folder                             | Matches                     | `params`                                       |
+| ---------------------------------- | --------------------------- | ---------------------------------------------- |
+| `[slug]`                           | `/courses/react`            | `{ slug: "react" }`                            |
+| `[...slug]` (catch-all)            | `/docs/a/b/c`               | `{ slug: ["a", "b", "c"] }`                    |
 | `[[...slug]]` (optional catch-all) | `/docs` **and** `/docs/a/b` | `{ slug: undefined }` or `{ slug: ["a","b"] }` |
 
 ### `params` is a Promise (Next.js 15+, required in 16)
@@ -87,9 +87,9 @@ export default async function CoursePage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const { slug } = await params;                       // must await
+  const { slug } = await params; // must await
   const course = COURSES.find((c) => c.slug === slug);
-  if (!course) notFound();                             // renders not-found.tsx with a 404
+  if (!course) notFound(); // renders not-found.tsx with a 404
   return <h1>{course.title}</h1>;
 }
 ```
@@ -128,8 +128,8 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 export function LevelFilter() {
   const router = useRouter();
-  const pathname = usePathname();                 // "/courses"
-  const searchParams = useSearchParams();         // URLSearchParams (read-only)
+  const pathname = usePathname(); // "/courses"
+  const searchParams = useSearchParams(); // URLSearchParams (read-only)
 
   function setLevel(level: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -143,31 +143,38 @@ export function LevelFilter() {
 
 On the **server**, use `redirect("/login")` and `notFound()` from `next/navigation`.
 
-| API | Where | Use |
-|---|---|---|
-| `<Link>` | anywhere | navigation links |
-| `useRouter()`, `usePathname()`, `useSearchParams()` | Client Components | imperative navigation, read URL |
-| `redirect(url)`, `notFound()` | Server (and handlers) | redirect / 404 |
-| `await params`, `await searchParams` | page/layout/route | read dynamic route data |
+| API                                                 | Where                 | Use                             |
+| --------------------------------------------------- | --------------------- | ------------------------------- |
+| `<Link>`                                            | anywhere              | navigation links                |
+| `useRouter()`, `usePathname()`, `useSearchParams()` | Client Components     | imperative navigation, read URL |
+| `redirect(url)`, `notFound()`                       | Server (and handlers) | redirect / 404                  |
+| `await params`, `await searchParams`                | page/layout/route     | read dynamic route data         |
 
 ## 7. Organising routes without changing URLs
 
-| Convention | Example | Effect |
-|---|---|---|
-| **Route group** `(name)` | `app/(marketing)/about/page.tsx` | folder name **not** in the URL (`/about`); group routes under a shared layout |
-| **Private folder** `_name` | `app/_components/Button.tsx` | opted out of routing |
-| **Parallel routes** `@slot` | `app/@modal/...` | render several pages in one layout (advanced) |
-| **Intercepting routes** `(.)photo` | modal that shows a route over the current page | advanced |
+| Convention                         | Example                                        | Effect                                                                        |
+| ---------------------------------- | ---------------------------------------------- | ----------------------------------------------------------------------------- |
+| **Route group** `(name)`           | `app/(marketing)/about/page.tsx`               | folder name **not** in the URL (`/about`); group routes under a shared layout |
+| **Private folder** `_name`         | `app/_components/Button.tsx`                   | opted out of routing                                                          |
+| **Parallel routes** `@slot`        | `app/@modal/...`                               | render several pages in one layout (advanced)                                 |
+| **Intercepting routes** `(.)photo` | modal that shows a route over the current page | advanced                                                                      |
 
 ## 8. Metadata (SEO)
 
 ```tsx
 import type { Metadata } from "next";
 
-export const metadata: Metadata = { title: "Courses | LearningHub", description: "Browse all courses" };
+export const metadata: Metadata = {
+  title: "Courses | LearningHub",
+  description: "Browse all courses",
+};
 
 // dynamic version
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
   const { slug } = await params;
   return { title: `${slug} | LearningHub` };
 }
@@ -177,14 +184,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 You will meet both in real codebases.
 
-| | **App Router** (`app/`, current) | **Pages Router** (`pages/`, older) |
-|---|---|---|
-| Component default | **Server Component** | Client (React on the server for SSR, then hydrated) |
-| Routing file | `app/x/page.tsx` | `pages/x.tsx` |
-| Data fetching | `async` components, `fetch`, direct DB calls | `getServerSideProps`, `getStaticProps`, `getStaticPaths` |
-| Layouts | nested `layout.tsx` | `_app.tsx`, `_document.tsx` |
-| API | `app/api/**/route.ts` | `pages/api/**.ts` (`req`, `res`) |
-| Loading/error UI | `loading.tsx`, `error.tsx` | manual |
+|                   | **App Router** (`app/`, current)             | **Pages Router** (`pages/`, older)                       |
+| ----------------- | -------------------------------------------- | -------------------------------------------------------- |
+| Component default | **Server Component**                         | Client (React on the server for SSR, then hydrated)      |
+| Routing file      | `app/x/page.tsx`                             | `pages/x.tsx`                                            |
+| Data fetching     | `async` components, `fetch`, direct DB calls | `getServerSideProps`, `getStaticProps`, `getStaticPaths` |
+| Layouts           | nested `layout.tsx`                          | `_app.tsx`, `_document.tsx`                              |
+| API               | `app/api/**/route.ts`                        | `pages/api/**.ts` (`req`, `res`)                         |
+| Loading/error UI  | `loading.tsx`, `error.tsx`                   | manual                                                   |
 
 ## 10. Common mistakes
 
@@ -202,6 +209,7 @@ You will meet both in real codebases.
 ## 11. Predict the output
 
 **Q1** Which URL does each file create (if any)?
+
 ```
 app/page.tsx
 app/pricing/page.tsx
@@ -217,8 +225,13 @@ app/courses/data.ts
 **Q3** Same request, but the folder is `app/docs/[[...slug]]/page.tsx`. What is `slug` for `/docs`?
 
 **Q4** What does the user see for `/courses/zzz`?
+
 ```tsx
-export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   const course = COURSES.find((c) => c.slug === slug);
   if (!course) notFound();
