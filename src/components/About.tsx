@@ -57,6 +57,16 @@ const topics = [
     href: "/dsa",
     icon: ListTree,
   },
+  {
+    name: "Top30JS",
+    href: "/top30js",
+    icon: Braces,
+  },
+  {
+    name: "Interview",
+    href: "/interview",
+    icon: Braces,
+  },
 ];
 
 export default function About() {
