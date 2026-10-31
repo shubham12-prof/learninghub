@@ -9,6 +9,8 @@ import {
   Workflow,
   ListTree,
   ArrowRight,
+  Gauge,
+  ShieldCheck,
 } from "lucide-react";
 
 const topics = [
@@ -65,7 +67,17 @@ const topics = [
   {
     name: "Interview",
     href: "/interview",
-    icon: Braces,
+    icon: Component,
+  },
+  {
+    name: "Authentication",
+    href: "/authentication",
+    icon: ShieldCheck,
+  },
+  {
+    name: "Performance",
+    href: "/performance",
+    icon: Gauge,
   },
 ];
 
