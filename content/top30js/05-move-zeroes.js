@@ -3,10 +3,25 @@
 
   PROBLEM: move all 0s to the end of the array, keeping the relative
   order of non-zero elements, done IN-PLACE.
-  Example: [0,1,0,3,12] -> [1,3,12,0,0]
 
-  WHY TWO POINTERS FIT: "slow" marks where the next non-zero value
-  should go. "fast" scans for non-zero values and swaps them into place.
+  Example 1:
+  [0,1,0,3,12] -> [1,3,12,0,0]
+
+  Example 2:
+  [0,0,1] -> [1,0,0]
+
+  Example 3:
+  [1,2,3] -> [1,2,3]
+
+  Example 4:
+  [0,0,0] -> [0,0,0]
+
+  Example 5:
+  [4,0,5,0,0,2] -> [4,5,2,0,0,0]
+
+  WHY TWO POINTERS FIT:
+  "slow" marks where the next non-zero value should go.
+  "fast" scans for non-zero values and swaps them into place.
 */
 
 function moveZeroes(nums) {
@@ -22,9 +37,26 @@ function moveZeroes(nums) {
   return nums;
 }
 
-console.log(moveZeroes([0, 1, 0, 3, 12])); // [1, 3, 12, 0, 0]
+console.log(moveZeroes([0, 1, 0, 3, 12]));
+// [1, 3, 12, 0, 0]
+
+console.log(moveZeroes([0, 0, 1]));
+// [1, 0, 0]
+
+console.log(moveZeroes([1, 2, 3]));
+// [1, 2, 3]
+
+console.log(moveZeroes([0, 0, 0]));
+// [0, 0, 0]
+
+console.log(moveZeroes([4, 0, 5, 0, 0, 2]));
+// [4, 5, 2, 0, 0, 0]
 
 /*
   TIME COMPLEXITY: O(n)
-  SPACE COMPLEXITY: O(1) - done entirely in-place via swapping.
+  - We traverse the array once.
+
+  SPACE COMPLEXITY: O(1)
+  - We modify the original array in-place.
+  - No extra array is created.
 */
