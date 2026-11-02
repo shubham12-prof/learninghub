@@ -79,6 +79,11 @@ const topics = [
     href: "/performance",
     icon: Gauge,
   },
+  {
+    name: "Day[1-7] Fullstack",
+    href: "/day",
+    icon: Component,
+  },
 ];
 
 export default function About() {
