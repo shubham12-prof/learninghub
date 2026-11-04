@@ -80,6 +80,11 @@ const topics = [
     icon: Gauge,
   },
   {
+    name: "interview",
+    href: "/interview",
+    icon: Component,
+  },
+  {
     name: "Day[1-7] Fullstack",
     href: "/day",
     icon: Component,
